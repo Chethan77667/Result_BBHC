@@ -173,14 +173,14 @@ def search_files(query, file_type="all"):
     
     return results
 
-def update_result_with_reexam(result_file_path, reexam_file_path):
+def update_result_with_reexam(result_file_path, reexam_file):
     """Update result file with re-exam data."""
     try:
         # Load original result file
         result_df = pd.read_excel(result_file_path)
         
-        # Load re-exam file
-        reexam_df = pd.read_excel(reexam_file_path)
+        # Load re-exam file from the uploaded file object
+        reexam_df = pd.read_excel(reexam_file)
         
         # Extract USNs from re-exam file
         reexam_usns = set()
@@ -634,12 +634,16 @@ def main():
     with tab3:
         st.header("🔄 Re-exam Update")
         
+
+        
         st.markdown("""
         **Instructions:**
         1. Upload the re-exam ledger file
         2. Select the original result file to update
         3. The system will automatically update the results based on USN matching
         4. Totals and percentages will be recalculated
+        5. **The original file will be overwritten with the updated data**
+        6. **No copy files are created - the original file is modified in place**
         """)
         
         # File upload
@@ -647,8 +651,8 @@ def main():
         
         # Check if we have the file ready for processing
         if reexam_file:
-            # Auto-save re-exam file
-            reexam_filename, reexam_path = auto_save_file(reexam_file, "reexam")
+            # Process re-exam file directly without auto-saving
+            reexam_filename = reexam_file.name
             
             # Get available files from uploaded_files directory only
             uploaded_files = []
@@ -728,51 +732,69 @@ def main():
                                     original_file_path = selected_file.get('file_path')
                                     
                                     if os.path.exists(original_file_path):
-                                        # Update results
-                                        updated_df, updated_count = update_result_with_reexam(original_file_path, reexam_path)
+                                        # Update results - pass the file object directly
+                                        updated_df, updated_count = update_result_with_reexam(original_file_path, reexam_file)
                                         
                                         if updated_df is not None:
-                                            # Save updated results
-                                            updated_filename = f"Updated_{selected_file['filename']}"
-                                            updated_path = os.path.join(PROCESSED_DIR, updated_filename)
-                                            updated_df.to_excel(updated_path, index=False)
+                                            # Update the original file directly (overwrite it)
+                                            original_file_path = selected_file.get('file_path')
+                                            updated_df.to_excel(original_file_path, index=False)
                                             
-                                            # Save metadata
-                                            file_id = f"reexam_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-                                            metadata[file_id] = {
-                                                "filename": updated_filename,
-                                                "original_file": selected_file['filename'],
-                                                "reexam_file": reexam_filename,
-                                                "type": "reexam_updated",
-                                                "upload_date": datetime.now().isoformat(),
-                                                "student_count": len(updated_df),
-                                                "updated_count": updated_count,
-                                                "file_path": updated_path
-                                            }
+                                            # Update metadata for the original file
+                                            metadata = load_metadata()
+                                            
+                                            # Find and update the existing metadata entry for this file
+                                            file_updated = False
+                                            for file_id, file_info in metadata.items():
+                                                if file_info.get('file_path') == original_file_path:
+                                                    # Update existing metadata
+                                                    file_info['reexam_file'] = reexam_filename
+                                                    file_info['type'] = 'reexam_updated'
+                                                    file_info['last_updated'] = datetime.now().isoformat()
+                                                    file_info['updated_count'] = updated_count
+                                                    file_info['total_students'] = len(updated_df)
+                                                    file_updated = True
+                                                    break
+                                            
+                                            # If no existing metadata found, create a new entry
+                                            if not file_updated:
+                                                file_id = f"reexam_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                                                metadata[file_id] = {
+                                                    "filename": selected_file['filename'],
+                                                    "original_file": selected_file['filename'],
+                                                    "reexam_file": reexam_filename,
+                                                    "type": "reexam_updated",
+                                                    "upload_date": selected_file.get('upload_date', 'Unknown'),
+                                                    "last_updated": datetime.now().isoformat(),
+                                                    "student_count": len(updated_df),
+                                                    "updated_count": updated_count,
+                                                    "file_path": original_file_path
+                                                }
+                                            
                                             save_metadata(metadata)
                                             
                                             # Success message box
-                                            st.success(f"✅ **Update Completed Successfully!**")
+                                            st.success(f"✅ **Original File Updated Successfully!**")
                                             st.info(f"""
                                             **📊 Update Summary:**
-                                            - **Original File:** {selected_file['filename']}
+                                            - **File Updated:** {selected_file['filename']}
                                             - **Re-exam File:** {reexam_filename}
                                             - **Students Updated:** {updated_count} out of {len(updated_df)} total students
-                                            - **Updated File Saved As:** {updated_filename}
-                                            - **Location:** {PROCESSED_DIR}/
+                                            - **File Location:** {os.path.dirname(original_file_path)}/
+                                            - **⚠️ Note:** Original file has been modified with re-exam data
                                             """)
                                             
                                             # Show updated results
-                                            st.subheader("📋 Updated Results")
+                                            st.subheader("📋 Updated Results (Original File Modified)")
                                             st.dataframe(updated_df)
                                             
-                                            # Download updated file
+                                            # Download updated file (same filename as original)
                                             buffer = io.BytesIO()
                                             updated_df.to_excel(buffer, index=False)
                                             st.download_button(
-                                                label="📥 Download Updated Results",
+                                                label="📥 Download Updated File",
                                                 data=buffer.getvalue(),
-                                                file_name=updated_filename,
+                                                file_name=selected_file['filename'],
                                                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                                 key=f"download_reexam_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
                                             )
@@ -802,8 +824,9 @@ def main():
         ### 🔄 Re-exam Update Tab
         1. **Upload original result file** (processed Excel file)
         2. **Upload re-exam ledger** (new Excel file with updated marks)
-        3. **Automatic update** - System matches USNs and updates results
+        3. **Automatic update** - System matches USNs and updates results directly in the original file
         4. **Recalculate totals** - Totals and percentages are automatically recalculated
+        5. **⚠️ Important:** Original file is modified in place, no separate copy is created
         
         ### 📌 File Format Requirements
         - **Sheet1**: Subject details with subject codes and names
@@ -813,7 +836,7 @@ def main():
         ### 💾 Auto-Save Features
         - **Uploaded files** are automatically saved with timestamps
         - **Processed results** are saved with metadata (semester, year, student count)
-        - **Re-exam updates** are saved as new files with update information
+        - **Re-exam updates** modify original files directly (no copies created)
         - **Search functionality** allows easy access to all saved files
         """)
 
