@@ -1,0 +1,407 @@
+USN: U05TU23C0124
+Name: Manish
+Before Result: Fail	Current Result: Pass
+Before Total: 494	Current Total: 529
+Before Percentage: 70.57	Current Percentage: 75.57
+Changed Subjects:
+  BCMCMCN103 - Principles of Marketing: Before: 40-Fail	Current: 75-Pass
+----------------------------------------
+USN: U05BB23C0008
+Name: Sudarshan Billava
+Before Result: Fail	Current Result: Pass
+Before Total: 385	Current Total: 410
+Before Percentage: 55.0	Current Percentage: 58.57
+Changed Subjects:
+  BCMCMCN102 - Management Principles and Applications: Before: 45-Fail	Current: 51-Pass
+  BCMCMCN103 - Principles of Marketing: Before: 35-Fail	Current: 54-Pass
+----------------------------------------
+USN: U05BB23C0009
+Name: VINITHA ACHARI
+Before Result: Fail	Current Result: Pass
+Before Total: 492	Current Total: 561
+Before Percentage: 70.29	Current Percentage: 80.14
+Changed Subjects:
+  BCMENLN101 - Generic English: Before: nan-Absent	Current: 69-Pass
+----------------------------------------
+USN: U05BB23C0010
+Name: VISMITHA ACHARI
+Before Result: Fail	Current Result: Pass
+Before Total: 501	Current Total: 571
+Before Percentage: 71.57	Current Percentage: 81.57
+Changed Subjects:
+  BCMENLN101 - Generic English: Before: nan-Absent	Current: 70-Pass
+----------------------------------------
+USN: U05BB23C0016
+Name: Pratheesh
+Before Result: Fail	Current Result: Fail
+Before Total: 312	Current Total: 336
+Before Percentage: 44.57	Current Percentage: 48.0
+Changed Subjects:
+  BCMCMCN102 - Management Principles and Applications: Before: 28-Fail	Current: 30-Fail
+  BCMCMCN103 - Principles of Marketing: Before: 26-Fail	Current: 31-Fail
+  BCMENLN101 - Generic English: Before: 45-Fail	Current: 62-Pass
+----------------------------------------
+USN: U05BB23C0027
+Name: Ashritha
+Before Result: Fail	Current Result: Fail
+Before Total: 404	Current Total: 420
+Before Percentage: 57.71	Current Percentage: 60.0
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 37-Fail	Current: 60-Pass
+  BCMCMCN102 - Management Principles and Applications: Before: 40-Fail	Current: 33-Fail
+----------------------------------------
+USN: U05BB23C0030
+Name: ANKITHA
+Before Result: Fail	Current Result: Fail
+Before Total: 402	Current Total: 408
+Before Percentage: 57.43	Current Percentage: 58.29
+Changed Subjects:
+  BCMCMCN102 - Management Principles and Applications: Before: 44-Fail	Current: 40-Fail
+  BCMCMCN103 - Principles of Marketing: Before: 36-Fail	Current: 37-Fail
+  BCMKALN102 - Kannada: Before: 46-Fail	Current: 55-Pass
+----------------------------------------
+USN: U05BB23C0037
+Name: D P Prajwal
+Before Result: Fail	Current Result: Pass
+Before Total: 388	Current Total: 403
+Before Percentage: 55.43	Current Percentage: 57.57
+Changed Subjects:
+  BCMCMCN102 - Management Principles and Applications: Before: 31-Fail	Current: 46-Pass
+----------------------------------------
+USN: U05BB23C0044
+Name: Nikhil N
+Before Result: Fail	Current Result: Fail
+Before Total: 310	Current Total: 335
+Before Percentage: 44.29	Current Percentage: 47.86
+Changed Subjects:
+  BCMCMCN102 - Management Principles and Applications: Before: 28-Fail	Current: 34-Fail
+  BCMCMCN103 - Principles of Marketing: Before: 39-Fail	Current: 46-Pass
+  BCMENLN101 - Generic English: Before: 41-Fail	Current: 53-Pass
+----------------------------------------
+USN: U05BB23C0045
+Name: Dheeraj Shetty
+Before Result: Fail	Current Result: Fail
+Before Total: 325	Current Total: 359
+Before Percentage: 46.43	Current Percentage: 51.29
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 30-Fail	Current: 40-Fail
+  BCMCMCN102 - Management Principles and Applications: Before: 29-Fail	Current: 36-Fail
+  BCMCMCN103 - Principles of Marketing: Before: 44-Fail	Current: 61-Pass
+----------------------------------------
+USN: U05BB23C0046
+Name: Darshan
+Before Result: Fail	Current Result: Fail
+Before Total: 373	Current Total: 409
+Before Percentage: 53.29	Current Percentage: 58.43
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 35-Fail	Current: 61-Pass
+  BCMCMCN103 - Principles of Marketing: Before: 47-Fail	Current: 57-Pass
+----------------------------------------
+USN: U05BB23C0048
+Name: DAYANANDA
+Before Result: Fail	Current Result: Fail
+Before Total: 365	Current Total: 363
+Before Percentage: 52.14	Current Percentage: 51.86
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 44-Fail	Current: 57-Pass
+  BCMCMCN103 - Principles of Marketing: Before: 39-Fail	Current: 60-Pass
+  BCMENLN101 - Generic English: Before: 36-Fail	Current: nan-Absent
+----------------------------------------
+USN: U05BB23C0062
+Name: Prithvin S Hebbar
+Before Result: Fail	Current Result: Fail
+Before Total: 348	Current Total: 335
+Before Percentage: 49.71	Current Percentage: 47.86
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 27-Fail	Current: 26-Fail
+  BCMCMCN102 - Management Principles and Applications: Before: 36-Fail	Current: 24-Fail
+----------------------------------------
+USN: U05BB23C0064
+Name: Nanditha S Ganiga
+Before Result: Fail	Current Result: Pass
+Before Total: 394	Current Total: 413
+Before Percentage: 56.29	Current Percentage: 59.0
+Changed Subjects:
+  BCMCMCN103 - Principles of Marketing: Before: 41-Fail	Current: 60-Pass
+----------------------------------------
+USN: U05BB23C0067
+Name: Sumith
+Before Result: Fail	Current Result: Fail
+Before Total: 261	Current Total: 433
+Before Percentage: 37.29	Current Percentage: 61.86
+Changed Subjects:
+  BCMCMCN103 - Principles of Marketing: Before: 41-Fail	Current: 61-Pass
+  BCMENLN101 - Generic English: Before: nan-Absent	Current: 65-Pass
+  BCMKALN102 - Kannada: Before: nan-Absent	Current: 87-Pass
+----------------------------------------
+USN: U05BB23C0068
+Name: Shanthaguru
+Before Result: Fail	Current Result: Fail
+Before Total: 405	Current Total: 422
+Before Percentage: 57.86	Current Percentage: 60.29
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 43-Fail	Current: 60-Pass
+----------------------------------------
+USN: U05BB23C0072
+Name: ASHRITHA
+Before Result: Fail	Current Result: Fail
+Before Total: 355	Current Total: 366
+Before Percentage: 50.71	Current Percentage: 52.29
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 30-Fail	Current: 39-Fail
+  BCMCMCN102 - Management Principles and Applications: Before: 37-Fail	Current: 39-Fail
+----------------------------------------
+USN: U05BB23C0077
+Name: Sushmita
+Before Result: Fail	Current Result: Fail
+Before Total: 378	Current Total: 378
+Before Percentage: 54.0	Current Percentage: 54.0
+No subject marks changed.
+----------------------------------------
+USN: U05BB23C0086
+Name: SUDEEPA
+Before Result: Fail	Current Result: Pass
+Before Total: 427	Current Total: 457
+Before Percentage: 61.0	Current Percentage: 65.29
+Changed Subjects:
+  BCMCMCN103 - Principles of Marketing: Before: 40-Fail	Current: 70-Pass
+----------------------------------------
+USN: U05BB23C0087
+Name: Bharath Shetty
+Before Result: Fail	Current Result: Pass
+Before Total: 381	Current Total: 391
+Before Percentage: 54.43	Current Percentage: 55.86
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 30-Fail	Current: 40-Pass
+----------------------------------------
+USN: U05BB23C0095
+Name: Dayananda
+Before Result: Fail	Current Result: Pass
+Before Total: 431	Current Total: 472
+Before Percentage: 61.57	Current Percentage: 67.43
+Changed Subjects:
+  BCMCMCN103 - Principles of Marketing: Before: 44-Fail	Current: 85-Pass
+----------------------------------------
+USN: U05BB23C0096
+Name: ANANYA
+Before Result: Fail	Current Result: Fail
+Before Total: 381	Current Total: 393
+Before Percentage: 54.43	Current Percentage: 56.14
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 40-Fail	Current: 52-Pass
+----------------------------------------
+USN: U05BB23C0101
+Name: Mithun Devadiga
+Before Result: Fail	Current Result: Fail
+Before Total: 330	Current Total: 371
+Before Percentage: 47.14	Current Percentage: 53.0
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 39-Fail	Current: 58-Pass
+  BCMCMCN103 - Principles of Marketing: Before: 35-Fail	Current: 57-Pass
+----------------------------------------
+USN: U05BB23C0102
+Name: Pavana
+Before Result: Fail	Current Result: Fail
+Before Total: 351	Current Total: 367
+Before Percentage: 50.14	Current Percentage: 52.43
+Changed Subjects:
+  BCMCMCN103 - Principles of Marketing: Before: 30-Fail	Current: 46-Pass
+----------------------------------------
+USN: U05BB23C0110
+Name: Shravya R Chandan
+Before Result: Fail	Current Result: Fail
+Before Total: 371	Current Total: 383
+Before Percentage: 53.0	Current Percentage: 54.71
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 37-Fail	Current: 49-Pass
+----------------------------------------
+USN: U05BB23C0111
+Name: THRISHA
+Before Result: Fail	Current Result: Pass
+Before Total: 415	Current Total: 427
+Before Percentage: 59.29	Current Percentage: 61.0
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 39-Fail	Current: 51-Pass
+----------------------------------------
+USN: U05BB23C0136
+Name: Divya
+Before Result: Fail	Current Result: Pass
+Before Total: 389	Current Total: 413
+Before Percentage: 55.57	Current Percentage: 59.0
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 36-Fail	Current: 48-Pass
+  BCMCMCN102 - Management Principles and Applications: Before: 33-Fail	Current: 45-Pass
+----------------------------------------
+USN: U05BB23C0167
+Name: Gravin Dmello
+Before Result: Fail	Current Result: Pass
+Before Total: 388	Current Total: 422
+Before Percentage: 55.43	Current Percentage: 60.29
+Changed Subjects:
+  BCMCMCN103 - Principles of Marketing: Before: 44-Fail	Current: 62-Pass
+  BCMHDLN101 - Hindi: Before: 31-Fail	Current: 47-Pass
+----------------------------------------
+USN: U05BB23C0172
+Name: Manjunath
+Before Result: Fail	Current Result: Pass
+Before Total: 449	Current Total: 465
+Before Percentage: 64.14	Current Percentage: 66.43
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 43-Fail	Current: 59-Pass
+----------------------------------------
+USN: U05BB23C0181
+Name: Samarth S Poojary
+Before Result: Fail	Current Result: Fail
+Before Total: 356	Current Total: 353
+Before Percentage: 50.86	Current Percentage: 50.43
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 34-Fail	Current: 31-Fail
+----------------------------------------
+USN: U05BB23C0201
+Name: Ganesh
+Before Result: Fail	Current Result: Pass
+Before Total: 364	Current Total: 385
+Before Percentage: 52.0	Current Percentage: 55.0
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 38-Fail	Current: 50-Pass
+  BCMCMCN102 - Management Principles and Applications: Before: 36-Fail	Current: 45-Pass
+----------------------------------------
+USN: U05BB23C0207
+Name: Prameeth Kumar
+Before Result: Fail	Current Result: Fail
+Before Total: 274	Current Total: 314
+Before Percentage: 39.14	Current Percentage: 44.86
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 18-Fail	Current: 26-Fail
+  BCMCMCN102 - Management Principles and Applications: Before: 23-Fail	Current: 30-Fail
+  BCMCMCN103 - Principles of Marketing: Before: 32-Fail	Current: 43-Pass
+  BCMENLN101 - Generic English: Before: 32-Fail	Current: 46-Pass
+----------------------------------------
+USN: U05BB23C0208
+Name: Rohan Kumar B S
+Before Result: Fail	Current Result: Pass
+Before Total: 439	Current Total: 448
+Before Percentage: 62.71	Current Percentage: 64.0
+Changed Subjects:
+  BCMCMCN103 - Principles of Marketing: Before: 49-Fail	Current: 58-Pass
+----------------------------------------
+USN: U05BB23C0220
+Name: Cris Johnson Olivera
+Before Result: Fail	Current Result: Pass
+Before Total: 416	Current Total: 427
+Before Percentage: 59.43	Current Percentage: 61.0
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 29-Fail	Current: 40-Pass
+----------------------------------------
+USN: U05BB23C0246
+Name: SHASHANKA
+Before Result: Fail	Current Result: Pass
+Before Total: 412	Current Total: 430
+Before Percentage: 58.86	Current Percentage: 61.43
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 41-Fail	Current: 59-Pass
+----------------------------------------
+USN: U05BB23C0252
+Name: Raksha
+Before Result: Fail	Current Result: Pass
+Before Total: 393	Current Total: 402
+Before Percentage: 56.14	Current Percentage: 57.43
+Changed Subjects:
+  BCMCMCN103 - Principles of Marketing: Before: 45-Fail	Current: 54-Pass
+----------------------------------------
+USN: U05BB23C0260
+Name: Karna Parameshwar Naik
+Before Result: Fail	Current Result: Fail
+Before Total: 377	Current Total: 383
+Before Percentage: 53.86	Current Percentage: 54.71
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 37-Fail	Current: 35-Fail
+  BCMCMCN103 - Principles of Marketing: Before: 44-Fail	Current: 52-Pass
+----------------------------------------
+USN: U05BB23C0264
+Name: KARTHIK
+Before Result: Fail	Current Result: Pass
+Before Total: 439	Current Total: 465
+Before Percentage: 62.71	Current Percentage: 66.43
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 29-Fail	Current: 55-Pass
+----------------------------------------
+USN: U05BB23C0292
+Name: Vikas
+Before Result: Fail	Current Result: Pass
+Before Total: 431	Current Total: 446
+Before Percentage: 61.57	Current Percentage: 63.71
+Changed Subjects:
+  BCMCMCN103 - Principles of Marketing: Before: 35-Fail	Current: 50-Pass
+----------------------------------------
+USN: U05BB23C0302
+Name: Vivek
+Before Result: Fail	Current Result: Pass
+Before Total: 334	Current Total: 363
+Before Percentage: 47.71	Current Percentage: 51.86
+Changed Subjects:
+  BCMCMCN103 - Principles of Marketing: Before: 25-Fail	Current: 54-Pass
+----------------------------------------
+USN: U05BB23C0304
+Name: Chandan
+Before Result: Fail	Current Result: Fail
+Before Total: 283	Current Total: 308
+Before Percentage: 40.43	Current Percentage: 44.0
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 23-Fail	Current: 25-Fail
+  BCMCMCN102 - Management Principles and Applications: Before: 30-Fail	Current: 31-Fail
+  BCMCMCN103 - Principles of Marketing: Before: 32-Fail	Current: 37-Fail
+  BCMKALN102 - Kannada: Before: 33-Fail	Current: 50-Pass
+----------------------------------------
+USN: U05BB23C0314
+Name: Sanath
+Before Result: Fail	Current Result: Fail
+Before Total: 363	Current Total: 380
+Before Percentage: 51.86	Current Percentage: 54.29
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 27-Fail	Current: 28-Fail
+  BCMCMCN103 - Principles of Marketing: Before: 38-Fail	Current: 54-Pass
+----------------------------------------
+USN: U05BB23C0315
+Name: Chinmay
+Before Result: Fail	Current Result: Pass
+Before Total: 393	Current Total: 426
+Before Percentage: 56.14	Current Percentage: 60.86
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 29-Fail	Current: 47-Pass
+  BCMCMCN103 - Principles of Marketing: Before: 40-Fail	Current: 55-Pass
+----------------------------------------
+USN: U05BB23C0327
+Name: K Nithesh Shet
+Before Result: Fail	Current Result: Pass
+Before Total: 406	Current Total: 424
+Before Percentage: 58.0	Current Percentage: 60.57
+Changed Subjects:
+  BCMHDLN101 - Hindi: Before: 41-Fail	Current: 59-Pass
+----------------------------------------
+USN: U05BB23C0333
+Name: ASHISH
+Before Result: Fail	Current Result: Pass
+Before Total: 387	Current Total: 401
+Before Percentage: 55.29	Current Percentage: 57.29
+Changed Subjects:
+  BCMCMCN103 - Principles of Marketing: Before: 43-Fail	Current: 57-Pass
+----------------------------------------
+USN: U05BB23C0334
+Name: Shrikumar
+Before Result: Fail	Current Result: Pass
+Before Total: 372	Current Total: 411
+Before Percentage: 53.14	Current Percentage: 58.71
+Changed Subjects:
+  BCMCMCN103 - Principles of Marketing: Before: 46-Fail	Current: 60-Pass
+  BCMKALN102 - Kannada: Before: 35-Fail	Current: 60-Pass
+----------------------------------------
+USN: U05BB23C0359
+Name: Abdul Zahir
+Before Result: Fail	Current Result: Fail
+Before Total: 320	Current Total: 327
+Before Percentage: 45.71	Current Percentage: 46.71
+Changed Subjects:
+  BCMCMCN101 - Financial Accounting: Before: 30-Fail	Current: 36-Fail
+  BCMHDLN101 - Hindi: Before: 32-Fail	Current: 33-Fail
+----------------------------------------

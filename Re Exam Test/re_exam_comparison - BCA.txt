@@ -1,0 +1,116 @@
+USN: U05BB23S0030
+Name: HARSHA
+Before Result: Fail	Current Result: Pass
+Before Total: 444	Current Total: 473
+Before Percentage: 52.24	Current Percentage: 55.65
+Changed Subjects:
+  BCACACN102 - Programming in C: Before: 30-Fail	Current: 44-Pass
+  BCACACN103 - Mathematical Foundation: Before: 30-Fail	Current: 45-Pass
+----------------------------------------
+USN: U05BB23S0040
+Name: ARTHISH SHETTY
+Before Result: Fail	Current Result: Pass
+Before Total: 556	Current Total: 562
+Before Percentage: 65.41	Current Percentage: 66.12
+Changed Subjects:
+  BCACACN103 - Mathematical Foundation: Before: 40-Fail	Current: 46-Pass
+----------------------------------------
+USN: U05BB23S0043
+Name: Samarth Mendan
+Before Result: Fail	Current Result: Fail
+Before Total: 486	Current Total: 488
+Before Percentage: 57.18	Current Percentage: 57.41
+Changed Subjects:
+  BCACACN103 - Mathematical Foundation: Before: 30-Fail	Current: 32-Fail
+----------------------------------------
+USN: U05BB23S0055
+Name: Shamanth
+Before Result: Fail	Current Result: Pass
+Before Total: 533	Current Total: 562
+Before Percentage: 62.71	Current Percentage: 66.12
+Changed Subjects:
+  BCACACN102 - Programming in C: Before: 33-Fail	Current: 62-Pass
+----------------------------------------
+USN: U05BB23S0081
+Name: Ramith
+Before Result: Fail	Current Result: Pass
+Before Total: 526	Current Total: 562
+Before Percentage: 61.88	Current Percentage: 66.12
+Changed Subjects:
+  BCACACN101 - Fundamentals of Computers: Before: 43-Fail	Current: 67-Pass
+  BCACACN102 - Programming in C: Before: 31-Fail	Current: 43-Pass
+----------------------------------------
+USN: U05BB23S0091
+Name: Akshay
+Before Result: Fail	Current Result: Pass
+Before Total: 527	Current Total: 548
+Before Percentage: 62.0	Current Percentage: 64.47
+Changed Subjects:
+  BCACACN102 - Programming in C: Before: 39-Fail	Current: 49-Pass
+  BCACACN103 - Mathematical Foundation: Before: 42-Fail	Current: 53-Pass
+----------------------------------------
+USN: U05BB23S0092
+Name: NAGESH
+Before Result: Fail	Current Result: Fail
+Before Total: 412	Current Total: 437
+Before Percentage: 48.47	Current Percentage: 51.41
+Changed Subjects:
+  BCACACN101 - Fundamentals of Computers: Before: 39-Fail	Current: 50-Pass
+  BCAKALN102 - Kannada: Before: 41-Fail	Current: 55-Pass
+----------------------------------------
+USN: U05BB23S0094
+Name: Sanjana
+Before Result: Fail	Current Result: Pass
+Before Total: 526	Current Total: 547
+Before Percentage: 61.88	Current Percentage: 64.35
+Changed Subjects:
+  BCACACN101 - Fundamentals of Computers: Before: 42-Fail	Current: 53-Pass
+  BCACACN102 - Programming in C: Before: 42-Fail	Current: 52-Pass
+----------------------------------------
+USN: U05BB23S0123
+Name: Vinuth V S
+Before Result: Fail	Current Result: Pass
+Before Total: 551	Current Total: 578
+Before Percentage: 64.82	Current Percentage: 68.0
+Changed Subjects:
+  BCACACN102 - Programming in C: Before: 32-Fail	Current: 44-Pass
+  BCACACN103 - Mathematical Foundation: Before: 37-Fail	Current: 52-Pass
+----------------------------------------
+USN: U05BB23S0126
+Name: Akilesh
+Before Result: Fail	Current Result: Pass
+Before Total: 447	Current Total: 473
+Before Percentage: 52.59	Current Percentage: 55.65
+Changed Subjects:
+  BCACACN102 - Programming in C: Before: 31-Fail	Current: 46-Pass
+  BCACACN103 - Mathematical Foundation: Before: 33-Fail	Current: 41-Pass
+  BCACAPN104 - Information Technology: Before: 30-Fail	Current: 33-Pass
+----------------------------------------
+USN: U05PL23S0104
+Name: Srajan
+Before Result: Fail	Current Result: Pass
+Before Total: 505	Current Total: 521
+Before Percentage: 59.41	Current Percentage: 61.29
+Changed Subjects:
+  BCACACN102 - Programming in C: Before: 47-Fail	Current: 53-Pass
+  BCACACN103 - Mathematical Foundation: Before: 30-Fail	Current: 40-Pass
+----------------------------------------
+USN: U05BB23S0130
+Name: HARSHITHA
+Before Result: Fail	Current Result: Pass
+Before Total: 552	Current Total: 588
+Before Percentage: 64.94	Current Percentage: 69.18
+Changed Subjects:
+  BCACACN102 - Programming in C: Before: 40-Fail	Current: 62-Pass
+  COMEVSN102 - Environmental Studies: Before: 40-Fail	Current: 54-Pass
+----------------------------------------
+USN: U05UI23S0112
+Name: Anushri
+Before Result: Fail	Current Result: Pass
+Before Total: 444	Current Total: 488
+Before Percentage: 52.24	Current Percentage: 57.41
+Changed Subjects:
+  BCACACN101 - Fundamentals of Computers: Before: 36-Fail	Current: 51-Pass
+  BCACACN102 - Programming in C: Before: 29-Fail	Current: 47-Pass
+  BCACACN103 - Mathematical Foundation: Before: 36-Fail	Current: 47-Pass
+----------------------------------------

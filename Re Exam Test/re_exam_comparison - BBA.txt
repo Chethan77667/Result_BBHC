@@ -1,0 +1,66 @@
+USN: U05BB23M0018
+Name: Prajwal
+Before Result: Fail	Current Result: Fail
+Before Total: 322	Current Total: 321
+Before Percentage: 46.0	Current Percentage: 45.86
+Changed Subjects:
+  BBABMCN102 - Fundamentals of Business Accounting: Before: 38-Fail	Current: 42-Pass
+  BBAKALN102 - Kannada: Before: 39-Fail	Current: 36-Fail
+  BCACAEN101 - Office automation: Before: 28-Fail	Current: 26-Fail
+----------------------------------------
+USN: U05BB23M0026
+Name: SACHIN
+Before Result: Fail	Current Result: Pass
+Before Total: 376	Current Total: 393
+Before Percentage: 53.71	Current Percentage: 56.14
+Changed Subjects:
+  BBABMCN103 - Marketing Management: Before: 37-Fail	Current: 54-Pass
+----------------------------------------
+USN: U05BB23M0029
+Name: Mithun
+Before Result: Fail	Current Result: Pass
+Before Total: 383	Current Total: 399
+Before Percentage: 54.71	Current Percentage: 57.0
+Changed Subjects:
+  BBABMCN103 - Marketing Management: Before: 36-Fail	Current: 52-Pass
+----------------------------------------
+USN: U05BB23M0030
+Name: Pramod
+Before Result: Fail	Current Result: Pass
+Before Total: 421	Current Total: 448
+Before Percentage: 60.14	Current Percentage: 64.0
+Changed Subjects:
+  BBABMCN103 - Marketing Management: Before: 39-Fail	Current: 66-Pass
+----------------------------------------
+USN: U05BB23M0031
+Name: Sachin
+Before Result: Fail	Current Result: Pass
+Before Total: 428	Current Total: 450
+Before Percentage: 61.14	Current Percentage: 64.29
+Changed Subjects:
+  BBABMCN103 - Marketing Management: Before: 33-Fail	Current: 55-Pass
+----------------------------------------
+USN: U05BB23M0032
+Name: KARTHIK
+Before Result: Fail	Current Result: Pass
+Before Total: 398	Current Total: 418
+Before Percentage: 56.86	Current Percentage: 59.71
+Changed Subjects:
+  BBABMCN103 - Marketing Management: Before: 39-Fail	Current: 59-Pass
+----------------------------------------
+USN: U05BB23M0035
+Name: Nithesh
+Before Result: Fail	Current Result: Pass
+Before Total: 385	Current Total: 421
+Before Percentage: 55.0	Current Percentage: 60.14
+Changed Subjects:
+  BBABMCN103 - Marketing Management: Before: 22-Fail	Current: 58-Pass
+----------------------------------------
+USN: U05BB23M0041
+Name: Sukesh
+Before Result: Fail	Current Result: Pass
+Before Total: 377	Current Total: 426
+Before Percentage: 53.86	Current Percentage: 60.86
+Changed Subjects:
+  BCACAEN101 - Office automation: Before: nan-With Held	Current: 49-Pass
+----------------------------------------
