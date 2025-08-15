@@ -126,13 +126,50 @@ def search_files(query, file_type="all"):
     metadata = load_metadata()
     results = []
     
+    # Search in metadata (processed files)
     for file_info in metadata.values():
         if file_type != "all" and file_info.get("type") != file_type:
             continue
             
         filename = file_info.get("filename", "")
-        if query.lower() in filename.lower():
+        original_file = file_info.get("original_file", "")
+        
+        # Search in both filename and original filename
+        if (query.lower() in filename.lower() or 
+            query.lower() in original_file.lower()):
             results.append(file_info)
+    
+    # Search for existing files in current directory
+    if file_type in ["all", "existing"]:
+        current_dir_files = [f for f in os.listdir('.') if f.endswith('.xlsx')]
+        for filename in current_dir_files:
+            if query.lower() in filename.lower():
+                # Create a file info entry for existing files
+                file_info = {
+                    "filename": filename,
+                    "original_file": filename,
+                    "type": "existing",
+                    "upload_date": "Existing file",
+                    "file_path": os.path.join('.', filename),
+                    "student_count": "Unknown"
+                }
+                results.append(file_info)
+    
+    # Search for uploaded files in uploaded_files directory
+    if file_type in ["all", "uploaded"] and os.path.exists(UPLOAD_DIR):
+        uploaded_files = [f for f in os.listdir(UPLOAD_DIR) if f.endswith('.xlsx')]
+        for filename in uploaded_files:
+            if query.lower() in filename.lower():
+                # Create a file info entry for uploaded files
+                file_info = {
+                    "filename": filename,
+                    "original_file": filename,
+                    "type": "uploaded",
+                    "upload_date": "Uploaded file",
+                    "file_path": os.path.join(UPLOAD_DIR, filename),
+                    "student_count": "Unknown"
+                }
+                results.append(file_info)
     
     return results
 
@@ -205,10 +242,10 @@ def update_result_with_reexam(result_file_path, reexam_file_path):
 
 # === EXISTING FUNCTIONS ===
 
-def extract_subject_dict(file) -> Dict[str, str]:
+def extract_subject_dict(file, sheet_name='Sheet1') -> Dict[str, str]:
     """Extract subject codes and names from the Excel file."""
     try:
-        df_subjects = pd.read_excel(file, sheet_name='Sheet1', header=None)
+        df_subjects = pd.read_excel(file, sheet_name=sheet_name, header=None)
         subjects_dict = {}
         for i in range(len(df_subjects)):
             row = df_subjects.iloc[i]
@@ -321,11 +358,11 @@ def clean_to_int(val):
     return val
 
 @st.cache_data(show_spinner="📊 Processing result sheet...")
-def process_result_file(uploaded_file, output_filename: str) -> pd.DataFrame:
+def process_result_file(uploaded_file, output_filename: str, subject_sheet='Sheet1', result_sheet='Sheet2') -> pd.DataFrame:
     """Process the uploaded result file and generate analysis."""
     try:
-        df = pd.read_excel(uploaded_file, sheet_name='Sheet2', header=None)
-        subjects_dict = extract_subject_dict(uploaded_file)
+        df = pd.read_excel(uploaded_file, sheet_name=result_sheet, header=None)
+        subjects_dict = extract_subject_dict(uploaded_file, subject_sheet)
         student_blocks = extract_usns(df)
 
         if not student_blocks:
@@ -424,6 +461,32 @@ def main():
             # Extract semester and year info
             semester, year = get_semester_year_from_filename(uploaded_file.name)
             
+            # Get available sheets from the Excel file
+            try:
+                excel_file = pd.ExcelFile(uploaded_file)
+                available_sheets = excel_file.sheet_names
+                st.info(f"📋 Available worksheets: {', '.join(available_sheets)}")
+                
+                # Sheet selection
+                col1, col2 = st.columns(2)
+                with col1:
+                    subject_sheet = st.selectbox(
+                        "📚 Select Subject Details Sheet:",
+                        available_sheets,
+                        index=0 if 'Sheet1' in available_sheets else 0,
+                        help="Sheet containing subject codes and names"
+                    )
+                with col2:
+                    result_sheet = st.selectbox(
+                        "📊 Select Result Data Sheet:",
+                        available_sheets,
+                        index=1 if len(available_sheets) > 1 and 'Sheet2' in available_sheets else 0,
+                        help="Sheet containing student results"
+                    )
+            except Exception as e:
+                st.error(f"Error reading Excel file: {str(e)}")
+                return
+            
             output_filename = st.text_input(
                 "📝 Enter output file name (without extension):",
                 value=f"{semester}_Sem_{year}_Results",
@@ -431,7 +494,7 @@ def main():
             )
 
             if output_filename:
-                final_df = process_result_file(uploaded_file, output_filename)
+                final_df = process_result_file(uploaded_file, output_filename, subject_sheet, result_sheet)
                 
                 if final_df is not None:
                     # Auto-save processed results
@@ -484,15 +547,37 @@ def main():
                         label="💾 Download Processed Results",
                         data=buffer.getvalue(),
                         file_name=processed_filename,
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        key=f"download_processed_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
                     )
 
     with tab2:
         st.header("🔍 Search Saved Files")
         
+        # Debug: Show available files
+        if st.checkbox("🔧 Debug: Show all available files"):
+            st.subheader("📂 Files in uploaded_files directory:")
+            if os.path.exists(UPLOAD_DIR):
+                uploaded_files = [f for f in os.listdir(UPLOAD_DIR) if f.endswith('.xlsx')]
+                if uploaded_files:
+                    for file in uploaded_files:
+                        st.write(f"• {file}")
+                else:
+                    st.write("No Excel files found in uploaded_files directory")
+            else:
+                st.write("uploaded_files directory does not exist")
+            
+            st.subheader("📂 Files in current directory:")
+            current_files = [f for f in os.listdir('.') if f.endswith('.xlsx')]
+            if current_files:
+                for file in current_files:
+                    st.write(f"• {file}")
+            else:
+                st.write("No Excel files found in current directory")
+        
         # Search functionality
         search_query = st.text_input("🔍 Search files by name:", placeholder="Enter filename, semester, or year...")
-        file_type_filter = st.selectbox("📁 File type:", ["All", "Uploaded", "Processed"])
+        file_type_filter = st.selectbox("📁 File type:", ["All", "Uploaded", "Processed", "Existing"])
         
         if search_query:
             file_type = "all"
@@ -500,6 +585,8 @@ def main():
                 file_type = "upload"
             elif file_type_filter == "Processed":
                 file_type = "processed"
+            elif file_type_filter == "Existing":
+                file_type = "existing"
             
             search_results = search_files(search_query, file_type)
             
@@ -513,25 +600,32 @@ def main():
                         with col1:
                             st.markdown(f"**📅 Upload Date:** {file_info.get('upload_date', 'Unknown')}")
                             st.markdown(f"**📊 Type:** {file_info.get('type', 'Unknown')}")
+                            if file_info.get('original_file'):
+                                st.markdown(f"**📁 Original File:** {file_info['original_file']}")
                             if file_info.get('semester') and file_info.get('year'):
                                 st.markdown(f"**🎓 Semester:** {file_info['semester']} ({file_info['year']})")
                             if file_info.get('student_count'):
                                 st.markdown(f"**👥 Students:** {file_info['student_count']}")
+                            if file_info.get('type') == 'uploaded':
+                                st.markdown(f"**📂 Location:** {UPLOAD_DIR}/")
+                            elif file_info.get('type') == 'existing':
+                                st.markdown(f"**📂 Location:** Current Directory")
                         
                         with col2:
-                            # Download button
-                            if os.path.exists(file_info.get('file_path', '')):
-                                with open(file_info['file_path'], 'rb') as f:
-                                    st.download_button(
-                                        label="📥 Download",
-                                        data=f.read(),
-                                        file_name=file_info['filename'],
-                                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                                    )
-                            
-                            # Print option
-                            if st.button("🖨️ Print", key=f"print_{file_info['filename']}"):
-                                st.info("File opened in new tab for printing")
+                             # Download button
+                             if os.path.exists(file_info.get('file_path', '')):
+                                 with open(file_info['file_path'], 'rb') as f:
+                                     st.download_button(
+                                         label="📥 Download",
+                                         data=f.read(),
+                                         file_name=file_info['filename'],
+                                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                         key=f"download_search_{file_info['filename']}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                                     )
+                             
+                             # Print option
+                             if st.button("🖨️ Print", key=f"print_{file_info['filename']}"):
+                                 st.info("File opened in new tab for printing")
             else:
                 st.warning("No files found matching your search criteria.")
         else:
@@ -542,72 +636,154 @@ def main():
         
         st.markdown("""
         **Instructions:**
-        1. Upload the original result file (processed Excel file)
-        2. Upload the re-exam ledger file
+        1. Upload the re-exam ledger file
+        2. Select the original result file to update
         3. The system will automatically update the results based on USN matching
         4. Totals and percentages will be recalculated
         """)
         
-        # File uploads
-        original_result_file = st.file_uploader("📂 Upload Original Result File (.xlsx)", type=["xlsx"], key="original_result")
+        # File upload
         reexam_file = st.file_uploader("📂 Upload Re-exam Ledger (.xlsx)", type=["xlsx"], key="reexam_file")
         
-        if original_result_file and reexam_file:
+        # Check if we have the file ready for processing
+        if reexam_file:
             # Auto-save re-exam file
             reexam_filename, reexam_path = auto_save_file(reexam_file, "reexam")
             
-            if st.button("🔄 Update Results with Re-exam Data"):
-                with st.spinner("Updating results with re-exam data..."):
-                    # Create temporary file for original result
-                    temp_original_path = os.path.join(UPLOAD_DIR, f"temp_original_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx")
-                    with open(temp_original_path, 'wb') as f:
-                        f.write(original_result_file.getbuffer())
+            # Get available files from uploaded_files directory only
+            uploaded_files = []
+            
+            # Get uploaded files from uploaded_files directory
+            if os.path.exists(UPLOAD_DIR):
+                uploaded_file_list = [f for f in os.listdir(UPLOAD_DIR) if f.endswith('.xlsx')]
+                for filename in uploaded_file_list:
+                    file_info = {
+                        "filename": filename,
+                        "original_file": filename,
+                        "type": "uploaded",
+                        "upload_date": "Uploaded file",
+                        "file_path": os.path.join(UPLOAD_DIR, filename),
+                        "student_count": "Unknown"
+                    }
+                    uploaded_files.append(file_info)
+            
+            # Use only uploaded files
+            all_files = uploaded_files
+            
+            if all_files:
+                st.subheader("📂 Select Original Result File to Update")
+                
+                # Create a selection interface
+                selected_file = st.selectbox(
+                    "Choose the original result file:",
+                    options=all_files,
+                    format_func=lambda x: f"{x['filename']} ({x.get('type', 'Unknown')}) - {x.get('semester', 'Unknown')} Sem, {x.get('year', 'Unknown')} - {x.get('student_count', 'Unknown')} students",
+                    help="Select the file that you want to update with re-exam data"
+                )
+                
+                if selected_file:
+                    st.info(f"Selected: {selected_file['filename']}")
                     
-                    # Update results
-                    updated_df, updated_count = update_result_with_reexam(temp_original_path, reexam_path)
+                    # Show file details
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.markdown(f"**📅 Upload Date:** {selected_file.get('upload_date', 'Unknown')}")
+                        st.markdown(f"**🎓 Semester:** {selected_file.get('semester', 'Unknown')} ({selected_file.get('year', 'Unknown')})")
+                    with col2:
+                        st.markdown(f"**👥 Students:** {selected_file.get('student_count', 'Unknown')}")
+                        st.markdown(f"**📁 Original File:** {selected_file.get('original_file', 'Unknown')}")
                     
-                    if updated_df is not None:
-                        # Save updated results
-                        updated_filename = f"Updated_{original_result_file.name}"
-                        updated_path = os.path.join(PROCESSED_DIR, updated_filename)
-                        updated_df.to_excel(updated_path, index=False)
-                        
-                        # Save metadata
-                        metadata = load_metadata()
-                        file_id = f"reexam_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-                        metadata[file_id] = {
-                            "filename": updated_filename,
-                            "original_file": original_result_file.name,
-                            "reexam_file": reexam_filename,
-                            "type": "reexam_updated",
-                            "upload_date": datetime.now().isoformat(),
-                            "student_count": len(updated_df),
-                            "updated_count": updated_count,
-                            "file_path": updated_path
-                        }
-                        save_metadata(metadata)
-                        
-                        st.success(f"✅ Results updated successfully! {updated_count} students updated.")
-                        
-                        # Show updated results
-                        st.subheader("📋 Updated Results")
-                        st.dataframe(updated_df.head(10))
-                        
-                        # Download updated file
-                        buffer = io.BytesIO()
-                        updated_df.to_excel(buffer, index=False)
-                        st.download_button(
-                            label="📥 Download Updated Results",
-                            data=buffer.getvalue(),
-                            file_name=updated_filename,
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                        )
-                        
-                        # Clean up temporary file
-                        if os.path.exists(temp_original_path):
-                            os.remove(temp_original_path)
+                    # Check for automatic filename matching
+                    original_filename = selected_file['filename']
+                    reexam_filename_clean = reexam_filename.replace(f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_", "")
+                    
+                    # Show automatic matching info
+                    if original_filename.lower() in reexam_filename_clean.lower() or reexam_filename_clean.lower() in original_filename.lower():
+                        st.success("✅ **Automatic Match Found!** Files appear to be related based on filename.")
+                        st.info(f"Original: {original_filename} | Re-exam: {reexam_filename_clean}")
                     else:
-                        st.error("Failed to update results. Please check the file formats.")
+                        st.warning("⚠️ **Manual Selection** - Files don't appear to match automatically. Please verify selection.")
+                    
+                    # Confirmation dialog
+                    st.subheader("🔄 Update Confirmation")
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        confirm_update = st.checkbox(
+                            "✅ I confirm that I want to update this file with re-exam data",
+                            help="Check this box to confirm the update operation"
+                        )
+                    with col2:
+                        if confirm_update:
+                            st.success("✅ Confirmation received!")
+                        else:
+                            st.warning("⚠️ Please confirm the update operation")
+                    
+                    # Update button (only enabled after confirmation)
+                    if confirm_update:
+                        if st.button("🔄 Update Results with Re-exam Data", type="primary"):
+                            with st.spinner("Updating results with re-exam data..."):
+                                try:
+                                    # Get the original result file path
+                                    original_file_path = selected_file.get('file_path')
+                                    
+                                    if os.path.exists(original_file_path):
+                                        # Update results
+                                        updated_df, updated_count = update_result_with_reexam(original_file_path, reexam_path)
+                                        
+                                        if updated_df is not None:
+                                            # Save updated results
+                                            updated_filename = f"Updated_{selected_file['filename']}"
+                                            updated_path = os.path.join(PROCESSED_DIR, updated_filename)
+                                            updated_df.to_excel(updated_path, index=False)
+                                            
+                                            # Save metadata
+                                            file_id = f"reexam_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                                            metadata[file_id] = {
+                                                "filename": updated_filename,
+                                                "original_file": selected_file['filename'],
+                                                "reexam_file": reexam_filename,
+                                                "type": "reexam_updated",
+                                                "upload_date": datetime.now().isoformat(),
+                                                "student_count": len(updated_df),
+                                                "updated_count": updated_count,
+                                                "file_path": updated_path
+                                            }
+                                            save_metadata(metadata)
+                                            
+                                            # Success message box
+                                            st.success(f"✅ **Update Completed Successfully!**")
+                                            st.info(f"""
+                                            **📊 Update Summary:**
+                                            - **Original File:** {selected_file['filename']}
+                                            - **Re-exam File:** {reexam_filename}
+                                            - **Students Updated:** {updated_count} out of {len(updated_df)} total students
+                                            - **Updated File Saved As:** {updated_filename}
+                                            - **Location:** {PROCESSED_DIR}/
+                                            """)
+                                            
+                                            # Show updated results
+                                            st.subheader("📋 Updated Results")
+                                            st.dataframe(updated_df)
+                                            
+                                            # Download updated file
+                                            buffer = io.BytesIO()
+                                            updated_df.to_excel(buffer, index=False)
+                                            st.download_button(
+                                                label="📥 Download Updated Results",
+                                                data=buffer.getvalue(),
+                                                file_name=updated_filename,
+                                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                                key=f"download_reexam_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                                            )
+                                        else:
+                                            st.error("Failed to update results. Please check the file formats.")
+                                    else:
+                                        st.error(f"Original result file not found: {original_file_path}")
+                                except Exception as e:
+                                    st.error(f"Error updating results: {str(e)}")
+            else:
+                st.warning("No uploaded files found in the uploaded_files directory. Please upload some files first in the 'Process Results' tab.")
 
     with tab4:
         st.header("ℹ️ Instructions")

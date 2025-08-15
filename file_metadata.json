@@ -28,5 +28,55 @@
     "upload_date": "2025-08-15T13:14:14.831907",
     "student_count": 138,
     "file_path": "processed_results\\I_Sem_2024-25_Results.xlsx"
+  },
+  "reexam_20250815_150411": {
+    "filename": "Updated_I_Sem_2024-25_Results.xlsx",
+    "original_file": "I_Sem_2024-25_Results.xlsx",
+    "reexam_file": "20250815_150410_20250815_144727_BCA-SEM-2.xlsx",
+    "type": "reexam_updated",
+    "upload_date": "2025-08-15T15:04:11.664188",
+    "student_count": 138,
+    "updated_count": 132,
+    "file_path": "processed_results\\Updated_I_Sem_2024-25_Results.xlsx"
+  },
+  "reexam_20250815_150649": {
+    "filename": "Updated_I_Sem_2024-25_Results.xlsx",
+    "original_file": "I_Sem_2024-25_Results.xlsx",
+    "reexam_file": "20250815_150648_20250815_144727_BCA-SEM-2.xlsx",
+    "type": "reexam_updated",
+    "upload_date": "2025-08-15T15:06:49.503884",
+    "student_count": 138,
+    "updated_count": 132,
+    "file_path": "processed_results\\Updated_I_Sem_2024-25_Results.xlsx"
+  },
+  "reexam_20250815_151230": {
+    "filename": "Updated_I_Sem_2024-25_Results.xlsx",
+    "original_file": "I_Sem_2024-25_Results.xlsx",
+    "reexam_file": "20250815_151229_20250815_144910_BCA-SEM-2.xlsx",
+    "type": "reexam_updated",
+    "upload_date": "2025-08-15T15:12:30.630532",
+    "student_count": 138,
+    "updated_count": 132,
+    "file_path": "processed_results\\Updated_I_Sem_2024-25_Results.xlsx"
+  },
+  "reexam_20250815_152548": {
+    "filename": "Updated_20250815_144910_BCA-SEM-2.xlsx",
+    "original_file": "20250815_144910_BCA-SEM-2.xlsx",
+    "reexam_file": "20250815_152546_20250815_144910_BCA-SEM-2.xlsx",
+    "type": "reexam_updated",
+    "upload_date": "2025-08-15T15:25:48.293926",
+    "student_count": 139,
+    "updated_count": 139,
+    "file_path": "processed_results\\Updated_20250815_144910_BCA-SEM-2.xlsx"
+  },
+  "reexam_20250815_152654": {
+    "filename": "Updated_I_Sem_2024-25_Results.xlsx",
+    "original_file": "I_Sem_2024-25_Results.xlsx",
+    "reexam_file": "20250815_152653_20250815_144910_BCA-SEM-2.xlsx",
+    "type": "reexam_updated",
+    "upload_date": "2025-08-15T15:26:54.537851",
+    "student_count": 138,
+    "updated_count": 132,
+    "file_path": "processed_results\\Updated_I_Sem_2024-25_Results.xlsx"
   }
 }
