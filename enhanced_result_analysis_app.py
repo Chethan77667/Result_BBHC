@@ -458,6 +458,18 @@ def main():
             # Auto-save uploaded file
             saved_filename, saved_path = auto_save_file(uploaded_file, "upload")
             
+            # Show confirmation that file has been saved
+            st.success(f"✅ **File uploaded and saved successfully!**")
+            
+            # Display file storage information
+            st.info(f"""
+            **📁 File Details:**
+            - **Original Name:** {uploaded_file.name}
+            - **Saved As:** {saved_filename}
+            - **Location:** `{UPLOAD_DIR}/`
+            - **Size:** {uploaded_file.size:,} bytes
+            """)
+            
             # Extract semester and year info
             semester, year = get_semester_year_from_filename(uploaded_file.name)
             
@@ -811,7 +823,7 @@ def main():
         st.header("ℹ️ Instructions")
         st.markdown("""
         ### 📊 Process Results Tab
-        1. **Upload Excel file** (.xlsx format)
+        1. **Upload Excel file** (.xlsx format) - **File is immediately saved to `uploaded_files/` directory**
         2. **Enter output filename** (auto-generated based on semester/year)
         3. **View processed results** with individual student details
         4. **Auto-save** - Files are automatically saved for future access
