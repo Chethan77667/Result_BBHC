@@ -122,7 +122,7 @@ def get_semester_year_from_filename(filename):
     return semester, year
 
 def search_files(query, file_type="all"):
-    """Search for files based on query."""
+    """Search for files based on exact filename match."""
     metadata = load_metadata()
     results = []
     
@@ -134,16 +134,16 @@ def search_files(query, file_type="all"):
         filename = file_info.get("filename", "")
         original_file = file_info.get("original_file", "")
         
-        # Search in both filename and original filename
-        if (query.lower() in filename.lower() or 
-            query.lower() in original_file.lower()):
+        # Search for exact filename match only
+        if (query.lower() == filename.lower() or 
+            query.lower() == original_file.lower()):
             results.append(file_info)
     
     # Search for existing files in current directory
     if file_type in ["all", "existing"]:
         current_dir_files = [f for f in os.listdir('.') if f.endswith('.xlsx')]
         for filename in current_dir_files:
-            if query.lower() in filename.lower():
+            if query.lower() == filename.lower():
                 # Create a file info entry for existing files
                 file_info = {
                     "filename": filename,
@@ -159,7 +159,7 @@ def search_files(query, file_type="all"):
     if file_type in ["all", "uploaded"] and os.path.exists(UPLOAD_DIR):
         uploaded_files = [f for f in os.listdir(UPLOAD_DIR) if f.endswith('.xlsx')]
         for filename in uploaded_files:
-            if query.lower() in filename.lower():
+            if query.lower() == filename.lower():
                 # Create a file info entry for uploaded files
                 file_info = {
                     "filename": filename,
@@ -473,6 +473,9 @@ def main():
             # Extract semester and year info
             semester, year = get_semester_year_from_filename(uploaded_file.name)
             
+            # Get original filename without extension for default output name
+            original_filename_without_ext = os.path.splitext(uploaded_file.name)[0]
+            
             # Get available sheets from the Excel file
             try:
                 excel_file = pd.ExcelFile(uploaded_file)
@@ -501,12 +504,23 @@ def main():
             
             output_filename = st.text_input(
                 "📝 Enter output file name (without extension):",
-                value=f"{semester}_Sem_{year}_Results",
+                value=original_filename_without_ext,
                 help="This will be used to save the processed results"
             )
 
+            # Show OK button to process the file
             if output_filename:
-                final_df = process_result_file(uploaded_file, output_filename, subject_sheet, result_sheet)
+                col1, col2, col3 = st.columns([1, 1, 1])
+                with col2:
+                    if st.button("✅ OK", type="primary", key="process_file_btn"):
+                        with st.spinner("Processing file..."):
+                            final_df = process_result_file(uploaded_file, output_filename, subject_sheet, result_sheet)
+                
+                # Reset button to clear form
+                with col3:
+                    if st.button("🔄 Reset", type="secondary", key="reset_form_btn_top"):
+                        st.session_state.clear()
+                        st.experimental_rerun()
                 
                 if final_df is not None:
                     # Auto-save processed results
@@ -562,6 +576,14 @@ def main():
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         key=f"download_processed_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
                     )
+                    
+                    # Reset button to clear form and return to first page
+                    st.markdown("---")
+                    col1, col2, col3 = st.columns([1, 1, 1])
+                    with col2:
+                        if st.button("🔄 Reset & Upload New File", type="secondary", key="reset_form_btn"):
+                            st.session_state.clear()
+                            st.experimental_rerun()
 
     with tab2:
         st.header("🔍 Search Saved Files")
@@ -588,7 +610,7 @@ def main():
                 st.write("No Excel files found in current directory")
         
         # Search functionality
-        search_query = st.text_input("🔍 Search files by name:", placeholder="Enter filename, semester, or year...")
+        search_query = st.text_input("🔍 Search files by full filename:", placeholder="Enter exact filename to search...")
         file_type_filter = st.selectbox("📁 File type:", ["All", "Uploaded", "Processed", "Existing"])
         
         if search_query:
@@ -603,7 +625,7 @@ def main():
             search_results = search_files(search_query, file_type)
             
             if search_results:
-                st.success(f"Found {len(search_results)} file(s)")
+                st.success(f"✅ Exact match found: {search_results[0]['filename']}")
                 
                 for file_info in search_results:
                     with st.expander(f"📄 {file_info['filename']}"):
@@ -639,24 +661,12 @@ def main():
                              if st.button("🖨️ Print", key=f"print_{file_info['filename']}"):
                                  st.info("File opened in new tab for printing")
             else:
-                st.warning("No files found matching your search criteria.")
+                st.warning("❌ No files found with exact filename match.")
         else:
-            st.info("Enter a search query to find saved files.")
+            st.info("Enter the exact filename to search for files.")
 
     with tab3:
         st.header("🔄 Re-exam Update")
-        
-
-        
-        st.markdown("""
-        **Instructions:**
-        1. Upload the re-exam ledger file
-        2. Select the original result file to update
-        3. The system will automatically update the results based on USN matching
-        4. Totals and percentages will be recalculated
-        5. **The original file will be overwritten with the updated data**
-        6. **No copy files are created - the original file is modified in place**
-        """)
         
         # File upload
         reexam_file = st.file_uploader("📂 Upload Re-exam Ledger (.xlsx)", type=["xlsx"], key="reexam_file")
@@ -683,10 +693,21 @@ def main():
                     }
                     uploaded_files.append(file_info)
             
-            # Use only uploaded files
-            all_files = uploaded_files
+            # Filter files by similar names to re-exam file
+            similar_files = []
+            reexam_name_clean = reexam_filename.lower().replace('.xlsx', '').replace('reexam', '').replace('ledger', '').strip()
+            
+            for file_info in uploaded_files:
+                filename_clean = file_info['filename'].lower().replace('.xlsx', '').replace('timestamp_', '').strip()
+                # Check if files have similar names (contain similar keywords)
+                if any(word in filename_clean for word in reexam_name_clean.split()) or any(word in reexam_name_clean for word in filename_clean.split()):
+                    similar_files.append(file_info)
+            
+            # Use only similar files
+            all_files = similar_files
             
             if all_files:
+                st.success(f"✅ Found {len(all_files)} similar file(s) to update")
                 st.subheader("📂 Select Original Result File to Update")
                 
                 # Create a selection interface
@@ -701,7 +722,7 @@ def main():
                     st.info(f"Selected: {selected_file['filename']}")
                     
                     # Show file details
-                    col1, col2 = st.columns(2)
+                    col1, col2 = st.columns([2, 1])
                     with col1:
                         st.markdown(f"**📅 Upload Date:** {selected_file.get('upload_date', 'Unknown')}")
                         st.markdown(f"**🎓 Semester:** {selected_file.get('semester', 'Unknown')} ({selected_file.get('year', 'Unknown')})")
@@ -709,21 +730,10 @@ def main():
                         st.markdown(f"**👥 Students:** {selected_file.get('student_count', 'Unknown')}")
                         st.markdown(f"**📁 Original File:** {selected_file.get('original_file', 'Unknown')}")
                     
-                    # Check for automatic filename matching
-                    original_filename = selected_file['filename']
-                    reexam_filename_clean = reexam_filename.replace(f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_", "")
-                    
-                    # Show automatic matching info
-                    if original_filename.lower() in reexam_filename_clean.lower() or reexam_filename_clean.lower() in original_filename.lower():
-                        st.success("✅ **Automatic Match Found!** Files appear to be related based on filename.")
-                        st.info(f"Original: {original_filename} | Re-exam: {reexam_filename_clean}")
-                    else:
-                        st.warning("⚠️ **Manual Selection** - Files don't appear to match automatically. Please verify selection.")
-                    
                     # Confirmation dialog
                     st.subheader("🔄 Update Confirmation")
                     
-                    col1, col2 = st.columns(2)
+                    col1, col2 = st.columns([2, 1])
                     with col1:
                         confirm_update = st.checkbox(
                             "✅ I confirm that I want to update this file with re-exam data",
@@ -817,7 +827,8 @@ def main():
                                 except Exception as e:
                                     st.error(f"Error updating results: {str(e)}")
             else:
-                st.warning("No uploaded files found in the uploaded_files directory. Please upload some files first in the 'Process Results' tab.")
+                st.warning("❌ No similar files found for re-exam update.")
+                st.info("Please upload a result file with a similar name first, or check if the re-exam file name matches any existing result files.")
 
     with tab4:
         st.header("ℹ️ Instructions")
@@ -834,11 +845,12 @@ def main():
         3. **Download/Print** - Access saved files with download and print options
         
         ### 🔄 Re-exam Update Tab
-        1. **Upload original result file** (processed Excel file)
-        2. **Upload re-exam ledger** (new Excel file with updated marks)
-        3. **Automatic update** - System matches USNs and updates results directly in the original file
-        4. **Recalculate totals** - Totals and percentages are automatically recalculated
-        5. **⚠️ Important:** Original file is modified in place, no separate copy is created
+        1. **Upload re-exam ledger** (new Excel file with updated marks)
+        2. **System automatically finds similar named files** for potential updates
+        3. **Select matching file** from the filtered list
+        4. **Automatic update** - System matches USNs and updates results directly in the original file
+        5. **Recalculate totals** - Totals and percentages are automatically recalculated
+        6. **⚠️ Important:** Original file is modified in place, no separate copy is created
         
         ### 📌 File Format Requirements
         - **Sheet1**: Subject details with subject codes and names
