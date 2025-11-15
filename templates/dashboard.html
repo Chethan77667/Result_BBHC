@@ -24,28 +24,30 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-50 min-h-screen overflow-y-auto">
-    <!-- Navigation Header -->
-    <nav class="bg-white shadow-lg border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-graduation-cap text-primary-600 text-2xl mr-3"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold text-gray-900">Semester Result Analyzer</h1>
-                        <p class="text-sm text-gray-500">Academic Performance Analysis System</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/admin" class="text-primary-600 hover:text-primary-700 font-medium">
-                        <i class="fas fa-cog mr-1"></i>
-                        Admin Panel
-                    </a>
-                </div>
+    <!-- ======================== MAIN PAGE HEADER SECTION ======================== -->
+    <header class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-2 sm:py-3 flex flex-col md:flex-row md:items-center md:gap-4 gap-2">
+            <!-- Logo Section -->
+            <div class="flex md:block items-center justify-center">
+                <img 
+                    src="{{ url_for('static', filename='img/logo-removebg-preview.png') }}" 
+                    alt="College Logo" 
+                    class="h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain" 
+                />
+            </div>
+            
+            <!-- College Name and Subtitle Section -->
+            <div class="min-w-0 text-center md:text-left flex-1">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 leading-tight md:truncate">
+                    Dr. B. B. Hegde First Grade College, Kundapura
+                </h1>
+                <div class="h-0.5 bg-gray-300 my-1 mx-auto md:mx-0 w-11/12 md:w-full"></div>
+                <p class="text-xs sm:text-sm text-gray-600">
+                    A Unit of Coondapur Education Society (R)
+                </p>
             </div>
         </div>
-    </nav>
+    </header>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 pb-8">
@@ -196,7 +198,7 @@
     <footer class="bg-white border-t border-gray-200 mt-6">
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
             <div class="text-center text-gray-500 text-sm">
-                <p>&copy; 2024 Semester Result Analyzer. Built with Flask and Tailwind CSS.</p>
+                <p>&copy; 2025 Sem Result Analyzer | Developed by Incubation Center | All Rights Reserved.</p>
             </div>
         </div>
     </footer>

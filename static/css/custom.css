@@ -1,0 +1,234 @@
+/* Custom CSS for Moulya College Management System */
+
+/* Ensure consistent black and white theme */
+.btn-primary {
+    @apply bg-black text-white hover:bg-gray-800 px-4 py-2 rounded border;
+}
+
+.btn-secondary {
+    @apply bg-white text-black hover:bg-gray-100 px-4 py-2 rounded border border-black;
+}
+
+.form-input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black;
+}
+
+.table-header {
+    @apply bg-gray-100 text-black font-semibold;
+}
+
+.table-row {
+    @apply border-b border-gray-200 hover:bg-gray-50;
+}
+
+/* Loading spinner */
+.spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #000;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mobile-first responsive utilities */
+@media (max-width: 640px) {
+    /* Ensure proper touch targets on mobile */
+    .btn-primary, .btn-secondary {
+        min-height: 44px;
+        padding: 12px 16px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Better form inputs on mobile */
+    .form-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 12px 16px;
+        min-height: 44px;
+    }
+    
+    /* Improved table responsiveness */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Better spacing for mobile cards */
+    .card {
+        margin-bottom: 1rem;
+        padding: 1rem;
+    }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .btn-primary, .btn-secondary {
+        padding: 10px 20px;
+    }
+    
+    .form-input {
+        padding: 10px 14px;
+    }
+}
+
+/* Enhanced touch interactions */
+@media (pointer: coarse) {
+    .btn-primary, .btn-secondary, .form-input {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Better hover states for touch devices */
+    .btn-primary:hover, .btn-secondary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Improved accessibility */
+.btn-primary:focus, .btn-secondary:focus, .form-input:focus {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+}
+
+/* Better loading states */
+.spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #000;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+}
+
+/* Enhanced table styling for mobile */
+@media (max-width: 640px) {
+    .table-header, .table-row {
+        font-size: 14px;
+        padding: 8px 4px;
+    }
+    
+    /* Stack table cells vertically on very small screens */
+    .table-responsive table {
+        display: block;
+        width: 100%;
+    }
+    
+    .table-responsive thead {
+        display: none;
+    }
+    
+    .table-responsive tbody {
+        display: block;
+    }
+    
+    .table-responsive tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+    
+    .table-responsive td {
+        display: block;
+        text-align: left;
+        border: none;
+        padding: 0.5rem 0;
+    }
+    
+    .table-responsive td:before {
+        content: attr(data-label) ": ";
+        font-weight: bold;
+        display: inline-block;
+        width: 40%;
+    }
+}
+
+/* Professional table styling for reports (screen + print) */
+.report-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed; /* Prevent awkward wrapping and keep columns consistent */
+}
+
+.report-table thead th {
+    background: #f3f4f6; /* gray-100 */
+    color: #111827; /* gray-900 */
+    font-weight: 600;
+    border-bottom: 1px solid #e5e7eb; /* gray-200 */
+    padding: 10px 12px;
+}
+
+.report-table tbody td {
+    border-bottom: 1px solid #e5e7eb; /* gray-200 */
+    padding: 10px 12px;
+    vertical-align: middle; /* consistent row alignment */
+}
+
+/* Zebra rows for readability */
+.report-table tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+.report-table tbody tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+/* Compact row height */
+.report-table.compact thead th,
+.report-table.compact tbody td {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+/* Clamp and ellipsis utilities for columns that shouldn't wrap */
+.no-wrap {
+    white-space: nowrap;
+}
+.truncate-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Subject column: keep on single line with ellipsis */
+.col-subject {
+    max-width: 260px; /* reasonable width on desktop */
+}
+
+/* Subject code column: never wrap, readable monospace */
+.col-code {
+    white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-variant-ligatures: none;
+}
+
+/* Proportional column sizing for typical report tables */
+.report-table.cols-6 thead th:nth-child(1),
+.report-table.cols-6 tbody td:nth-child(1) { width: 22%; }
+.report-table.cols-6 thead th:nth-child(2),
+.report-table.cols-6 tbody td:nth-child(2) { width: 14%; }
+.report-table.cols-6 thead th:nth-child(3),
+.report-table.cols-6 tbody td:nth-child(3) { width: 18%; }
+.report-table.cols-6 thead th:nth-child(4),
+.report-table.cols-6 tbody td:nth-child(4) { width: 14%; }
+.report-table.cols-6 thead th:nth-child(5),
+.report-table.cols-6 tbody td:nth-child(5) { width: 16%; }
+.report-table.cols-6 thead th:nth-child(6),
+.report-table.cols-6 tbody td:nth-child(6) { width: 16%; }
+
+/* Print styles: clean borders, monochrome, avoid truncation issues on paper */
+@media print {
+    body { background: #fff; }
+    header, nav, .no-print { display: none !important; }
+    .report-card { box-shadow: none !important; border: 1px solid #e5e7eb; }
+    .report-table thead th { background: #e5e7eb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .truncate-ellipsis { white-space: normal; } /* allow wrapping on print for full visibility */
+    .col-subject { max-width: none; }
+}

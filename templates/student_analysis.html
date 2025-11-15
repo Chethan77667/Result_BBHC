@@ -24,28 +24,38 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-50 min-h-screen overflow-y-auto">
-    <!-- Navigation Header -->
-    <nav class="bg-white shadow-lg border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-graduation-cap text-primary-600 text-2xl mr-3"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold text-gray-900">Student Analysis</h1>
-                        <p class="text-sm text-gray-500">Semester Result Analyzer</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/" class="text-primary-600 hover:text-primary-700 font-medium">
-                        <i class="fas fa-arrow-left mr-1"></i>
-                        Back to Dashboard
-                    </a>
-                </div>
+    <!-- ======================== MAIN PAGE HEADER SECTION ======================== -->
+    <header class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-2 sm:py-3 flex flex-col md:flex-row md:items-center md:gap-4 gap-2">
+            <!-- Logo Section -->
+            <div class="flex md:block items-center justify-center">
+                <img 
+                    src="{{ url_for('static', filename='img/logo-removebg-preview.png') }}" 
+                    alt="College Logo" 
+                    class="h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain" 
+                />
+            </div>
+            
+            <!-- College Name and Subtitle Section -->
+            <div class="min-w-0 text-center md:text-left flex-1">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 leading-tight md:truncate">
+                    Dr. B. B. Hegde First Grade College, Kundapura
+                </h1>
+                <div class="h-0.5 bg-gray-300 my-1 mx-auto md:mx-0 w-11/12 md:w-full"></div>
+                <p class="text-xs sm:text-sm text-gray-600">
+                    A Unit of Coondapur Education Society (R)
+                </p>
+            </div>
+            
+            <!-- Back to Dashboard Link -->
+            <div class="flex items-center justify-center md:justify-end">
+                <a href="/" class="text-primary-600 hover:text-primary-700 font-medium">
+                    <i class="fas fa-arrow-left mr-1"></i>
+                    Back to Dashboard
+                </a>
             </div>
         </div>
-    </nav>
+    </header>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 pb-8">
@@ -136,7 +146,7 @@
                         <h2 id="studentName" class="text-2xl font-bold text-gray-900"></h2>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
                         <div class="bg-blue-50 rounded-lg p-4">
                             <i class="fas fa-id-card text-blue-600 text-xl mb-2"></i>
                             <p class="text-sm font-medium text-blue-900">Registration Number</p>
@@ -151,6 +161,11 @@
                             <i class="fas fa-calendar text-purple-600 text-xl mb-2"></i>
                             <p class="text-sm font-medium text-purple-900">Year of Admission</p>
                             <p id="studentYear" class="text-lg font-bold text-purple-700"></p>
+                        </div>
+                        <div class="bg-amber-50 rounded-lg p-4">
+                            <i class="fas fa-star text-amber-600 text-xl mb-2"></i>
+                            <p class="text-sm font-medium text-amber-900">CGPA</p>
+                            <p id="studentCGPA" class="text-lg font-bold text-amber-700">--</p>
                         </div>
                         <div class="bg-orange-50 rounded-lg p-4" style="display: none;">
                             <i class="fas fa-id-badge text-orange-600 text-xl mb-2"></i>
@@ -280,6 +295,16 @@
             document.getElementById('studentCourse').textContent = studentData.course;
             document.getElementById('studentYear').textContent = studentData.year;
             
+            // Update CGPA in header card
+            const cgpaElement = document.getElementById('studentCGPA');
+            if (studentData.cgpa !== null && studentData.cgpa !== undefined && studentData.cgpa !== '') {
+                cgpaElement.textContent = studentData.cgpa;
+                cgpaElement.className = 'text-lg font-bold text-amber-700';
+            } else {
+                cgpaElement.textContent = '--';
+                cgpaElement.className = 'text-lg font-bold text-amber-700';
+            }
+            
             // Update roll number and class if available
             const rollNoElement = document.getElementById('studentRollNo');
             const classElement = document.getElementById('studentClass');
@@ -298,10 +323,28 @@
                 classElement.parentElement.style.display = 'none';
             }
             
+            // Helper function to extract semester number and format as "Sem X"
+            function formatSemesterDisplay(semesterString) {
+                // Extract number from semester string (handles "Sem 1", "Sem 1 2024", "SEM 1", etc.)
+                const match = semesterString.match(/(?:sem|semester)\s*(\d+)/i);
+                if (match && match[1]) {
+                    return `Sem ${match[1]}`;
+                }
+                // Fallback: try to extract any number
+                const numMatch = semesterString.match(/(\d+)/);
+                if (numMatch && numMatch[1]) {
+                    return `Sem ${numMatch[1]}`;
+                }
+                // Final fallback: return as is
+                return semesterString;
+            }
+            
             // Sort results by semester number (increasing order for display)
             const sortedResults = studentData.results.sort((a, b) => {
-                const aNum = parseInt(a.semester.replace('Sem ', ''));
-                const bNum = parseInt(b.semester.replace('Sem ', ''));
+                const aMatch = a.semester.match(/(?:sem|semester)\s*(\d+)/i);
+                const bMatch = b.semester.match(/(?:sem|semester)\s*(\d+)/i);
+                const aNum = aMatch ? parseInt(aMatch[1]) : 0;
+                const bNum = bMatch ? parseInt(bMatch[1]) : 0;
                 return aNum - bNum; // Ascending order (Sem 1, Sem 2, Sem 3)
             });
             
@@ -319,7 +362,8 @@
                         ? 'border-primary-500 text-primary-600 bg-primary-50' 
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`;
-                tab.textContent = result.semester;
+                // Format semester display to show only "Sem X"
+                tab.textContent = formatSemesterDisplay(result.semester);
                 tab.onclick = () => switchTab(index);
                 tabsContainer.appendChild(tab);
             });
@@ -344,10 +388,25 @@
             
             activeTab = index;
             
+            // Helper function to extract semester number and format as "Sem X"
+            function formatSemesterDisplay(semesterString) {
+                const match = semesterString.match(/(?:sem|semester)\s*(\d+)/i);
+                if (match && match[1]) {
+                    return `Sem ${match[1]}`;
+                }
+                const numMatch = semesterString.match(/(\d+)/);
+                if (numMatch && numMatch[1]) {
+                    return `Sem ${numMatch[1]}`;
+                }
+                return semesterString;
+            }
+            
             // Get sorted results (same sorting as in displayStudentResults)
             const sortedResults = currentStudentData.results.sort((a, b) => {
-                const aNum = parseInt(a.semester.replace('Sem ', ''));
-                const bNum = parseInt(b.semester.replace('Sem ', ''));
+                const aMatch = a.semester.match(/(?:sem|semester)\s*(\d+)/i);
+                const bMatch = b.semester.match(/(?:sem|semester)\s*(\d+)/i);
+                const aNum = aMatch ? parseInt(aMatch[1]) : 0;
+                const bNum = bMatch ? parseInt(bMatch[1]) : 0;
                 return aNum - bNum; // Ascending order (Sem 1, Sem 2, Sem 3)
             });
             
@@ -421,10 +480,6 @@
                                 <p class="text-xl font-bold ${result.summary.sgpa === 'Not Available' ? 'text-gray-500' : 'text-green-600'}">${result.summary.sgpa}</p>
                             </div>
                             <div class="text-center">
-                                <p class="text-sm font-medium text-gray-600">CGPA</p>
-                                <p class="text-xl font-bold ${result.summary.cgpa === 'Not Available' ? 'text-gray-500' : 'text-green-600'}">${result.summary.cgpa}</p>
-                            </div>
-                            <div class="text-center">
                                 <p class="text-sm font-medium text-gray-600">Result</p>
                                 <p class="text-xl font-bold ${result.summary.result === 'PASS' ? 'text-green-600' : 'text-red-600'}">${result.summary.result}</p>
                             </div>
@@ -454,5 +509,14 @@
             }
         });
     </script>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-6">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <div class="text-center text-gray-500 text-sm">
+                <p>&copy; 2025 Sem Result Analyzer | Developed by Incubation Center | All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

@@ -5,12 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ file_name or 'File Preview' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <div class="max-w-6xl mx-auto py-8 px-4">
+<body class="bg-gray-50 min-h-screen overflow-y-auto">
+    <!-- ======================== MAIN PAGE HEADER SECTION ======================== -->
+    <header class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-2 sm:py-3 flex flex-col md:flex-row md:items-center md:gap-4 gap-2">
+            <!-- Logo Section -->
+            <div class="flex md:block items-center justify-center">
+                <img 
+                    src="{{ url_for('static', filename='img/logo-removebg-preview.png') }}" 
+                    alt="College Logo" 
+                    class="h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain" 
+                />
+            </div>
+            
+            <!-- College Name and Subtitle Section -->
+            <div class="min-w-0 text-center md:text-left flex-1">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 leading-tight md:truncate">
+                    Dr. B. B. Hegde First Grade College, Kundapura
+                </h1>
+                <div class="h-0.5 bg-gray-300 my-1 mx-auto md:mx-0 w-11/12 md:w-full"></div>
+                <p class="text-xs sm:text-sm text-gray-600">
+                    A Unit of Coondapur Education Society (R)
+                </p>
+            </div>
+            
+            <!-- Back to Admin Link -->
+            <div class="flex items-center justify-center md:justify-end">
+                <a href="/admin" class="text-primary-600 hover:text-primary-700 font-medium">
+                    <i class="fas fa-arrow-left mr-1"></i>
+                    Back to Admin
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto py-8 px-4">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">{{ file_name or 'File Preview' }}</h1>
+                <h2 class="text-2xl font-bold text-gray-900">{{ file_name or 'File Preview' }}</h2>
                 {% if relative_path %}
                     <p class="text-sm text-gray-500">Path: {{ relative_path }}</p>
                 {% endif %}
@@ -18,9 +69,6 @@
                     <p class="text-sm text-gray-500">Size: {{ file_size }}{% if modified_at %} • Updated: {{ modified_at }}{% endif %}</p>
                 {% endif %}
             </div>
-            <a href="/admin" class="text-primary-600 hover:text-primary-800 font-medium">
-                &larr; Back to Admin
-            </a>
         </div>
 
         {% if error %}
@@ -36,7 +84,16 @@
                 <p class="text-center text-gray-500 py-10">No data to display.</p>
             {% endif %}
         </div>
-    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-6">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <div class="text-center text-gray-500 text-sm">
+                <p>&copy; 2025 Sem Result Analyzer | Developed by Incubation Center | All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
 

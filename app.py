@@ -37,8 +37,15 @@ def get_root_segment(relative_path: str) -> str:
         return ""
     return normalized.split("/", 1)[0]
 
-def ensure_allowed_root(relative_path: str):
+def ensure_allowed_root(relative_path: str, allow_root_level=False):
+    """
+    Check if the root segment is in allowed roots.
+    If allow_root_level is True, allow any root-level folder (for operations like delete/rename).
+    """
     root_segment = get_root_segment(relative_path)
+    if allow_root_level:
+        # Allow any root-level folder for operations like delete/rename
+        return
     if root_segment and root_segment not in FILE_MANAGER_ALLOWED_ROOTS:
         raise ValueError("Access to this location is restricted to permitted folders")
 
@@ -50,13 +57,14 @@ def ensure_allowed_absolute_path(abs_path: Path):
     if root_segment and root_segment not in FILE_MANAGER_ALLOWED_ROOTS:
         raise ValueError("Access to this location is restricted to permitted folders")
 
-def get_safe_path(relative_path: str = "") -> Path:
+def get_safe_path(relative_path: str = "", allow_root_level=False) -> Path:
     """
     Resolve a relative path against BASE_DIR ensuring it stays within the project directory.
     Raises ValueError if the resolved path escapes BASE_DIR.
+    If allow_root_level is True, allows root-level folders without restriction.
     """
     try:
-        ensure_allowed_root(relative_path)
+        ensure_allowed_root(relative_path, allow_root_level=allow_root_level)
         base_resolved = BASE_DIR.resolve()
         sanitized = (relative_path or "").strip()
         if sanitized in (".", "./"):
@@ -64,7 +72,8 @@ def get_safe_path(relative_path: str = "") -> Path:
         target_path = (base_resolved / Path(sanitized)).resolve()
         if not str(target_path).startswith(str(base_resolved)):
             raise ValueError("Path escapes project directory")
-        ensure_allowed_absolute_path(target_path)
+        if not allow_root_level:
+            ensure_allowed_absolute_path(target_path)
         return target_path
     except Exception as exc:
         raise ValueError(str(exc))
@@ -170,10 +179,19 @@ def api_list_files():
         for child in sorted(target_path.iterdir(), key=lambda p: (not p.is_dir(), p.name.lower())):
             if child.name.startswith("."):
                 continue
-            if relative_path in ("", "/") and (
-                not child.is_dir() or child.name not in FILE_MANAGER_ALLOWED_ROOTS
-            ):
-                continue
+            # In root directory: only show folders that match year format (4 digits like 2022, 2023, 2024)
+            # or are in the allowed roots list (like "Re-Exam")
+            if relative_path in ("", "/"):
+                if child.is_dir():
+                    # Check if folder name is a 4-digit year (2020-2099) or in allowed roots
+                    is_year_format = (len(child.name) == 4 and child.name.isdigit() and 
+                                     child.name.startswith(('20', '21')))
+                    is_allowed_root = child.name in FILE_MANAGER_ALLOWED_ROOTS
+                    if not (is_year_format or is_allowed_root):
+                        continue
+                else:
+                    # Don't show files in root directory
+                    continue
             children.append(summarize_directory(child))
     except PermissionError:
         return jsonify({'success': False, 'error': 'Permission denied'}), 403
@@ -216,10 +234,16 @@ def api_create_folder():
         return jsonify({'success': False, 'error': 'Parent directory not found'}), 404
 
     new_folder_path = parent_abs / folder_name
-    try:
-        ensure_allowed_absolute_path(new_folder_path)
-    except ValueError as exc:
-        return jsonify({'success': False, 'error': str(exc)}), 403
+    
+    # Allow creating folders in root directory without restriction
+    # Only check restrictions if creating inside a subdirectory
+    is_root_directory = (not parent_path or parent_path.strip() == '')
+    if not is_root_directory:
+        try:
+            ensure_allowed_absolute_path(new_folder_path)
+        except ValueError as exc:
+            return jsonify({'success': False, 'error': str(exc)}), 403
+    
     if new_folder_path.exists():
         return jsonify({'success': False, 'error': 'A file or folder with the same name already exists'}), 409
 
@@ -306,8 +330,9 @@ def api_rename_entry():
     if any(sep in new_name for sep in ('/', '\\')):
         return jsonify({'success': False, 'error': 'New name cannot contain path separators'}), 400
 
+    # Get the absolute path - allow root-level folders
     try:
-        current_abs = get_safe_path(current_path)
+        current_abs = get_safe_path(current_path, allow_root_level=True)
     except ValueError as exc:
         return jsonify({'success': False, 'error': str(exc)}), 400
 
@@ -317,11 +342,18 @@ def api_rename_entry():
     if current_abs == BASE_DIR.resolve():
         return jsonify({'success': False, 'error': 'Cannot rename the root directory'}), 403
 
+    # Check if this is a root-level folder (parent is BASE_DIR)
+    is_root_level = (current_abs.parent == BASE_DIR.resolve())
+    
     new_abs = current_abs.parent / new_name
-    try:
-        ensure_allowed_absolute_path(new_abs)
-    except ValueError as exc:
-        return jsonify({'success': False, 'error': str(exc)}), 403
+    
+    # Allow renaming root-level folders without restriction
+    # Only check restrictions if renaming inside a subdirectory
+    if not is_root_level:
+        try:
+            ensure_allowed_absolute_path(new_abs)
+        except ValueError as exc:
+            return jsonify({'success': False, 'error': str(exc)}), 403
     if new_abs.exists():
         return jsonify({'success': False, 'error': 'A file or folder with the new name already exists'}), 409
 
@@ -335,6 +367,44 @@ def api_rename_entry():
         'success': True,
         'message': 'Renamed successfully',
         'entry': summarize_directory(new_abs)
+    })
+
+@app.route('/api/delete', methods=['POST'])
+def api_delete_entry():
+    """
+    Delete a file or folder within BASE_DIR.
+    """
+    data = request.get_json(silent=True) or {}
+    path_to_delete = data.get('path', '').strip()
+
+    if not path_to_delete:
+        return jsonify({'success': False, 'error': 'Path is required'}), 400
+
+    # Get the absolute path - allow root-level folders
+    try:
+        target_abs = get_safe_path(path_to_delete, allow_root_level=True)
+    except ValueError as exc:
+        return jsonify({'success': False, 'error': str(exc)}), 400
+
+    if not target_abs.exists():
+        return jsonify({'success': False, 'error': 'Path not found'}), 404
+
+    if target_abs == BASE_DIR.resolve():
+        return jsonify({'success': False, 'error': 'Cannot delete the root directory'}), 403
+
+    try:
+        if target_abs.is_dir():
+            import shutil
+            shutil.rmtree(target_abs)
+        else:
+            target_abs.unlink()
+    except Exception as exc:
+        logger.error(f"Error deleting {target_abs}: {exc}")
+        return jsonify({'success': False, 'error': f'Unable to delete: {exc}'}), 500
+
+    return jsonify({
+        'success': True,
+        'message': 'Deleted successfully'
     })
 
 @app.route('/files/open')
@@ -668,7 +738,7 @@ def find_student_results(usn_info):
     return result_files if result_files else None
 
 def find_all_student_results_across_years(usn_info):
-    """Find all result files for a specific student across all years"""
+    """Find all result files for a specific student across all years, including Re-Exam folder"""
     usn = usn_info['usn']
     course = usn_info['course']
     
@@ -676,14 +746,22 @@ def find_all_student_results_across_years(usn_info):
     year_folders = get_year_folders()
     all_result_files = []
     
-    for year in year_folders:
+    # Also include Re-Exam folder for re-examination results
+    folders_to_search = year_folders + ['Re-Exam']
+    
+    for year in folders_to_search:
         year_path = BASE_DIR / year
+        
+        # Skip if folder doesn't exist
+        if not year_path.exists() or not year_path.is_dir():
+            continue
+            
         course_path = year_path / course
         
         if not course_path.exists():
             continue
             
-        # Find all result files for this course in this year
+        # Find all result files for this course in this year/folder
         for result_file in course_path.glob("*_result.xlsx"):
             try:
                 # Read the result file
@@ -696,6 +774,7 @@ def find_all_student_results_across_years(usn_info):
                     logger.info(f"Found USN {usn} in {year}/{course}/{result_file.name}, semester: {semester}")
                     all_result_files.append({
                         'year': year,
+                        'course': course,
                         'semester': semester,
                         'file_path': str(result_file),
                         'data': usn_row.iloc[0].to_dict()
@@ -706,36 +785,181 @@ def find_all_student_results_across_years(usn_info):
     
     return all_result_files if all_result_files else None
 
+def find_all_student_results_across_all_folders(usn):
+    """
+    Find all result files for a specific student across ALL folders and ALL courses.
+    This comprehensive search is used for re-examination updates to find results in any folder.
+    """
+    all_result_files = []
+    
+    # Search in all allowed root folders
+    folders_to_search = list(FILE_MANAGER_ALLOWED_ROOTS)
+    
+    for folder_name in folders_to_search:
+        folder_path = BASE_DIR / folder_name
+        
+        # Skip if folder doesn't exist
+        if not folder_path.exists() or not folder_path.is_dir():
+            continue
+        
+        # Search in ALL courses within this folder
+        for course_dir in folder_path.iterdir():
+            if not course_dir.is_dir():
+                continue
+            
+            course = course_dir.name
+            
+            # Find all result files in this course
+            for result_file in course_dir.glob("*_result.xlsx"):
+                try:
+                    # Read the result file
+                    df = pd.read_excel(result_file)
+                    
+                    # Check if USN exists in this file
+                    usn_row = df[df['USN'] == usn]
+                    if not usn_row.empty:
+                        semester = result_file.stem.replace('_result', '')
+                        logger.info(f"Found USN {usn} in {folder_name}/{course}/{result_file.name}, semester: {semester}")
+                        all_result_files.append({
+                            'year': folder_name,
+                            'course': course,
+                            'semester': semester,
+                            'file_path': str(result_file),
+                            'data': usn_row.iloc[0].to_dict()
+                        })
+                except Exception as e:
+                    logger.error(f"Error reading {result_file}: {e}")
+                    continue
+    
+    return all_result_files if all_result_files else None
+
+def calculate_student_cgpa(usn_info):
+    """
+    Get CGPA for a specific student from the most recent semester result file
+    in the same year folder (admission year).
+    Returns the CGPA value from the most recent semester file, or None if blank/not found.
+    """
+    usn = usn_info['usn']
+    course = usn_info['course']
+    year = usn_info['year']
+    
+    # Look only in the admission year folder (same folder)
+    year_path = BASE_DIR / year
+    course_path = year_path / course
+    
+    if not course_path.exists():
+        logger.warning(f"Course path does not exist: {course_path}")
+        return None
+    
+    # Helper function to extract semester number from filename
+    def get_semester_number(filename):
+        """Extract semester number from filename (e.g., 'Sem 1_result.xlsx' -> 1)"""
+        try:
+            # Remove _result.xlsx extension
+            name = filename.replace('_result.xlsx', '').replace('_result.xls', '')
+            # Look for numbers in the name
+            match = re.search(r'(\d+)', str(name))
+            if match:
+                return int(match.group(1))
+        except Exception:
+            pass
+        return 0
+    
+    # Find all result files for this student in the same folder
+    student_result_files = []
+    
+    for result_file in course_path.glob("*_result.xlsx"):
+        try:
+            # Read the result file
+            df = pd.read_excel(result_file)
+            
+            # Check if USN exists in this file
+            usn_row = df[df['USN'] == usn]
+            if not usn_row.empty:
+                semester_name = result_file.stem.replace('_result', '')
+                semester_num = get_semester_number(result_file.name)
+                cgpa_value = usn_row.iloc[0].get('CGPA')
+                
+                student_result_files.append({
+                    'semester_num': semester_num,
+                    'semester_name': semester_name,
+                    'file_path': str(result_file),
+                    'cgpa': cgpa_value
+                })
+                logger.debug(f"Found result for {usn} in {result_file.name}, semester: {semester_name}, CGPA: {cgpa_value}")
+        except Exception as e:
+            logger.error(f"Error reading {result_file} for CGPA: {e}")
+            continue
+    
+    if not student_result_files:
+        logger.warning(f"No result files found for {usn} in {course_path}")
+        return None
+    
+    # Sort by semester number (descending) to get the most recent
+    student_result_files.sort(key=lambda x: x['semester_num'], reverse=True)
+    most_recent = student_result_files[0]
+    
+    logger.info(f"Most recent semester for {usn}: {most_recent['semester_name']} (semester {most_recent['semester_num']})")
+    
+    # Get CGPA from the most recent semester file
+    cgpa = most_recent['cgpa']
+    
+    # Check if CGPA is valid (not blank, not null, not empty string)
+    if pd.isna(cgpa) or cgpa is None or str(cgpa).strip() == '':
+        logger.info(f"CGPA is blank for {usn} in most recent semester {most_recent['semester_name']}")
+        return None
+    
+    try:
+        # Try to convert to float to ensure it's a valid number
+        cgpa_float = float(cgpa)
+        logger.info(f"Found CGPA {cgpa_float} for {usn} from most recent semester {most_recent['semester_name']}")
+        return cgpa_float
+    except (ValueError, TypeError):
+        logger.warning(f"CGPA value '{cgpa}' is not a valid number for {usn}")
+        return None
+
 def check_for_re_examination_updates(usn_info):
     """
     Check if there are re-examination results that should update older records.
     
     This function implements the re-examination update logic:
-    1. Finds all result files for a student across all years
-    2. Looks for PASS results in newer years (2024+) for subjects that show FAIL in older years (2023-)
+    1. Finds all result files for a student across ALL folders and ALL courses
+    2. Looks for PASS results in newer folders/years for subjects that show FAIL/ABSENT in older folders/years
     3. Returns a list of updates that need to be applied
     
     Example scenario:
     - Student fails Math in 2023 Sem 1 (shows "FAIL")
-    - Student passes Math in 2024 re-exam (shows "PASS" or "65-PASS")
+    - Student passes Math in 2024 re-exam or Re-Exam folder (shows "PASS" or "65-PASS")
     - This function will identify that 2023 Sem 1 Math result should be updated to "PASS"
     """
     usn = usn_info['usn']
-    course = usn_info['course']
     
-    # Get all results across years
-    all_results = find_all_student_results_across_years(usn_info)
+    # Use comprehensive search across ALL folders and ALL courses
+    all_results = find_all_student_results_across_all_folders(usn)
     if not all_results:
         return None
     
-    # Sort results by year (newest first)
-    all_results.sort(key=lambda x: int(x['year']), reverse=True)
+    # Sort results by year/folder (newest first)
+    # Treat "Re-Exam" as the newest (highest priority) for re-examination updates
+    def sort_key(result):
+        year = result['year']
+        if year == 'Re-Exam':
+            # Re-Exam should be treated as newest (highest priority)
+            return (9999, 0)  # Use a very high number to ensure it's first
+        try:
+            year_int = int(year)
+            return (year_int, 0)
+        except (ValueError, TypeError):
+            # If year is not a number, put it at the end
+            return (0, 0)
+    
+    all_results.sort(key=sort_key, reverse=True)
     
     updates_needed = []
     
     # For each newer result, check if it has pass/absent results that should update older fails/absents
     for i, newer_result in enumerate(all_results):
-        newer_year = int(newer_result['year'])
+        newer_year = newer_result['year']  # Keep as string, don't convert to int
         
         newer_data = newer_result['data']
         
@@ -762,7 +986,7 @@ def check_for_re_examination_updates(usn_info):
                         # Look for older results that have FAIL/ABSENT for this subject
                         for j in range(i + 1, len(all_results)):
                             older_result = all_results[j]
-                            older_year = int(older_result['year'])
+                            older_year = older_result['year']  # Keep as string
                             
                             older_data = older_result['data']
                             
@@ -807,14 +1031,16 @@ def check_for_re_examination_updates(usn_info):
                                             'newer_result': update_value,
                                             'older_file': older_result['file_path'],
                                             'older_year': older_year,
+                                            'older_course': older_result.get('course', 'Unknown'),
                                             'older_semester': older_result['semester'],
                                             'newer_file': newer_result['file_path'],
                                             'newer_year': newer_year,
+                                            'newer_course': newer_result.get('course', 'Unknown'),
                                             'newer_semester': newer_result['semester'],
                                             'newer_row': newer_data,
                                             'update_type': 'ABSENT' if is_absent else 'PASS'
                                         })
-                                        logger.info(f"Update needed: {col} in {older_year}/{older_result['semester']} should be updated from {older_value_str} to {update_value} (re-exam: {'ABSENT' if is_absent else 'PASS'})")
+                                        logger.info(f"Update needed: {col} in {older_year}/{older_result.get('course', 'Unknown')}/{older_result['semester']} should be updated from {older_value_str} to {update_value} (re-exam from {newer_year}/{newer_result.get('course', 'Unknown')}: {'ABSENT' if is_absent else 'PASS'})")
     
     return updates_needed if updates_needed else None
 
@@ -1196,7 +1422,8 @@ def format_student_data(student_results, usn_info):
             'name': student_name,
             'course': usn_info['course'],
             'year': usn_info['year'],
-            'results': formatted_results
+            'results': formatted_results,
+            'cgpa': None  # Will be calculated and set in search_student route
         }
     
     except Exception as e:
@@ -1733,7 +1960,7 @@ def student_analysis():
 
 @app.route('/search-student', methods=['POST'])
 def search_student():
-    """Search for student by USN or roll number"""
+    """Search for student by USN or roll number - Fast direct fetch from processed files"""
     try:
         data = request.get_json()
         identifier = data.get('usn', '').strip()
@@ -1750,12 +1977,21 @@ def search_student():
         
         logger.info(f"Parsed USN info: {usn_info}")
         
-        # Check for and apply re-examination updates before searching
-        logger.info(f"Checking for re-examination updates for USN {usn_info['usn']}")
-        update_result = apply_re_examination_updates(usn_info)
-        if update_result['success'] and update_result['updates_applied'] > 0:
-            logger.info(f"Applied {update_result['updates_applied']} re-examination updates for USN {usn_info['usn']}")
+        # Check if result files exist (are processed) - fast check without processing
+        year = usn_info['year']
+        course = usn_info['course']
+        year_path = BASE_DIR / year
+        course_path = year_path / course
         
+        if not course_path.exists():
+            return jsonify({'success': False, 'error': f'Result files not found for year {year} and course {course}. Please process the Excel files first.'}), 404
+        
+        # Check if any result files exist
+        result_files = list(course_path.glob("*_result.xlsx"))
+        if not result_files:
+            return jsonify({'success': False, 'error': f'No processed result files found for year {year} and course {course}. Please process the Excel files first.'}), 404
+        
+        # Fast direct fetch - no processing, just read from processed files
         # Find student results (primary admission year)
         student_results = find_student_results(usn_info) or []
         def canonical_semester_name(name):
@@ -1810,26 +2046,27 @@ def search_student():
 
         if not merged_results:
             logger.error(f"No results found for USN {usn_info['usn']} in course {usn_info['course']} across all years")
-            return jsonify({'success': False, 'error': f'No results found for USN {usn_info["usn"]} in course {usn_info["course"]} across available years'}), 404
+            return jsonify({'success': False, 'error': f'No results found for USN {usn_info["usn"]} in course {usn_info["course"]}. The student may not exist in the processed result files.'}), 404
         
-        logger.info(f"Found {len(merged_results)} result files for USN {usn_info['usn']} (including re-exams)")
+        logger.info(f"Found {len(merged_results)} result files for USN {usn_info['usn']} - fetching data directly (no processing)")
         
-        # Format student data
+        # Format student data - fast direct fetch
         student_data = format_student_data(merged_results, usn_info)
         if not student_data:
             logger.error(f"Error formatting student data for USN {usn_info['usn']}")
             return jsonify({'success': False, 'error': 'Error formatting student data'}), 500
         
-        # Add update information to response if updates were applied
-        response_data = {'success': True, 'student_data': student_data}
-        if update_result['success'] and update_result['updates_applied'] > 0:
-            response_data['re_exam_updates'] = {
-                'updates_applied': update_result['updates_applied'],
-                'message': update_result['message'],
-                'details': update_result.get('applied_updates', [])
-            }
+        # Get CGPA from most recent semester - fast direct fetch
+        calculated_cgpa = calculate_student_cgpa(usn_info)
+        if calculated_cgpa is not None:
+            student_data['cgpa'] = calculated_cgpa
+        else:
+            student_data['cgpa'] = None  # Will display as "--" in frontend
         
-        logger.info(f"Successfully formatted student data for USN {usn_info['usn']}")
+        # Return data immediately - no processing updates
+        response_data = {'success': True, 'student_data': student_data}
+        
+        logger.info(f"Successfully fetched student data for USN {usn_info['usn']} with CGPA: {student_data.get('cgpa')} (fast direct fetch)")
         return jsonify(response_data)
         
     except Exception as e:

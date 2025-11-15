@@ -22,30 +22,200 @@
         }
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Modal Animations */
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        @keyframes modalFadeOut {
+            from {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+        }
+        
+        @keyframes backdropFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes backdropFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        @keyframes successSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateX(400px) scale(0.8);
+            }
+            50% {
+                transform: translateX(-10px) scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+        
+        @keyframes successSlideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(400px) scale(0.8);
+            }
+        }
+        
+        @keyframes successIconBounce {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2) rotate(5deg);
+            }
+        }
+        
+        @keyframes successPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+            }
+        }
+        
+        @keyframes errorPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+        }
+        
+        @keyframes warningPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(234, 179, 8, 0);
+            }
+        }
+        
+        .modal-backdrop {
+            animation: backdropFadeIn 0.3s ease-out;
+        }
+        
+        .modal-backdrop.fade-out {
+            animation: backdropFadeOut 0.2s ease-in forwards;
+        }
+        
+        .modal-content {
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        
+        .modal-content.fade-out {
+            animation: modalFadeOut 0.2s ease-in forwards;
+        }
+        
+        .success-toast {
+            animation: successSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .success-toast::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+        
+        .success-toast.fade-out {
+            animation: successSlideOut 0.3s ease-in forwards;
+        }
+        
+        .toast-icon {
+            animation: successIconBounce 0.6s ease-in-out;
+        }
+        
+        .toast-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            animation: successSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55), successPulse 2s infinite;
+        }
+        
+        .toast-error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            animation: successSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55), errorPulse 2s infinite;
+        }
+        
+        .toast-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            animation: successSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55), warningPulse 2s infinite;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen overflow-y-auto">
-    <!-- Navigation Header -->
-    <nav class="bg-white shadow-lg border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-cog text-primary-600 text-2xl mr-3"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold text-gray-900">Admin Panel</h1>
-                        <p class="text-sm text-gray-500">Excel Processing & System Management</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/" class="text-primary-600 hover:text-primary-700 font-medium">
-                        <i class="fas fa-arrow-left mr-1"></i>
-                        Back to Dashboard
-                    </a>
-                </div>
+    <!-- ======================== MAIN PAGE HEADER SECTION ======================== -->
+    <header class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-2 sm:py-3 flex flex-col md:flex-row md:items-center md:gap-4 gap-2">
+            <!-- Logo Section -->
+            <div class="flex md:block items-center justify-center">
+                <img 
+                    src="{{ url_for('static', filename='img/logo-removebg-preview.png') }}" 
+                    alt="College Logo" 
+                    class="h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain" 
+                />
+            </div>
+            
+            <!-- College Name and Subtitle Section -->
+            <div class="min-w-0 text-center md:text-left flex-1">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 leading-tight md:truncate">
+                    Dr. B. B. Hegde First Grade College, Kundapura
+                </h1>
+                <div class="h-0.5 bg-gray-300 my-1 mx-auto md:mx-0 w-11/12 md:w-full"></div>
+                <p class="text-xs sm:text-sm text-gray-600">
+                    A Unit of Coondapur Education Society (R)
+                </p>
+            </div>
+            
+            <!-- Back to Dashboard Link -->
+            <div class="flex items-center justify-center md:justify-end">
+                <a href="/" class="text-primary-600 hover:text-primary-700 font-medium">
+                    <i class="fas fa-arrow-left mr-1"></i>
+                    Back to Dashboard
+                </a>
             </div>
         </div>
-    </nav>
+    </header>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 pb-8">
@@ -301,6 +471,10 @@
                             <i class="fas fa-folder-plus text-primary-600"></i>
                             Create Folder
                         </h4>
+                        <div class="mb-2 text-xs text-gray-600 bg-white px-2 py-1 rounded border border-gray-200">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Creating in: <span id="createFolderPath" class="font-semibold text-primary-600">/</span>
+                        </div>
                         <form id="fmCreateFolderForm" class="space-y-3">
                             <input type="text" id="fmFolderName" placeholder="Folder name"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary-400 text-sm" required>
@@ -398,6 +572,38 @@
         </div>
     </main>
 
+    <!-- Custom Modal Container -->
+    <div id="customModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="modal-backdrop absolute inset-0" style="background-color: rgba(0, 0, 0, 0.5);"></div>
+        <div class="modal-content bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all relative z-10">
+            <div class="p-6">
+                <div id="modalHeader" class="flex items-center justify-between mb-4">
+                    <h3 id="modalTitle" class="text-xl font-bold text-gray-900"></h3>
+                    <button id="modalCloseBtn" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div id="modalBody" class="mb-6">
+                    <p id="modalMessage" class="text-gray-600 mb-4"></p>
+                    <div id="modalInputContainer" class="hidden">
+                        <input type="text" id="modalInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="">
+                    </div>
+                </div>
+                <div id="modalFooter" class="flex justify-end gap-3">
+                    <button id="modalCancelBtn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors">
+                        Cancel
+                    </button>
+                    <button id="modalConfirmBtn" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-3"></div>
+
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -430,12 +636,201 @@
     <footer class="bg-white border-t border-gray-200 mt-6">
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
             <div class="text-center text-gray-500 text-sm">
-                <p>&copy; 2024 Semester Result Analyzer. Built with Flask and Tailwind CSS.</p>
+                <p>&copy; 2025 Sem Result Analyzer | Developed by Incubation Center | All Rights Reserved.</p>
             </div>
         </div>
     </footer>
 
     <script>
+        // ==================== Custom Modal Functions ====================
+        let currentModalResolve = null;
+        
+        function showCustomModal(options) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customModal');
+                if (!modal) {
+                    console.error('Modal element not found');
+                    resolve(null);
+                    return;
+                }
+                
+                const modalTitle = document.getElementById('modalTitle');
+                const modalMessage = document.getElementById('modalMessage');
+                const modalInputContainer = document.getElementById('modalInputContainer');
+                const modalInput = document.getElementById('modalInput');
+                const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+                const modalCancelBtn = document.getElementById('modalCancelBtn');
+                const modalCloseBtn = document.getElementById('modalCloseBtn');
+                
+                if (!modalTitle || !modalMessage || !modalInput || !modalConfirmBtn || !modalCancelBtn || !modalCloseBtn) {
+                    console.error('Modal elements not found');
+                    resolve(null);
+                    return;
+                }
+                
+                // Set title and message
+                modalTitle.textContent = options.title || 'Confirm';
+                modalMessage.textContent = options.message || '';
+                
+                // Show/hide input based on type
+                if (options.type === 'prompt') {
+                    modalInputContainer.classList.remove('hidden');
+                    modalInput.value = options.defaultValue || '';
+                    modalInput.placeholder = options.placeholder || '';
+                } else {
+                    modalInputContainer.classList.add('hidden');
+                }
+                
+                // Set button colors and text based on type
+                if (options.type === 'delete') {
+                    modalConfirmBtn.className = 'px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors';
+                    modalConfirmBtn.innerHTML = '<i class="fas fa-trash mr-2"></i>Delete';
+                } else {
+                    modalConfirmBtn.className = 'px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors';
+                    modalConfirmBtn.innerHTML = 'Confirm';
+                }
+                
+                // Remove all existing event listeners by cloning and replacing buttons
+                const newConfirmBtn = modalConfirmBtn.cloneNode(true);
+                const newCancelBtn = modalCancelBtn.cloneNode(true);
+                const newCloseBtn = modalCloseBtn.cloneNode(true);
+                
+                modalConfirmBtn.parentNode.replaceChild(newConfirmBtn, modalConfirmBtn);
+                modalCancelBtn.parentNode.replaceChild(newCancelBtn, modalCancelBtn);
+                modalCloseBtn.parentNode.replaceChild(newCloseBtn, modalCloseBtn);
+                
+                // Get fresh reference to input after any DOM changes
+                const currentInput = document.getElementById('modalInput');
+                
+                // Add event listeners to new buttons
+                newConfirmBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const value = options.type === 'prompt' ? currentInput.value.trim() : true;
+                    if (options.type === 'prompt' && !value && options.required !== false) {
+                        currentInput.classList.add('border-red-500');
+                        setTimeout(() => currentInput.classList.remove('border-red-500'), 1000);
+                        return;
+                    }
+                    closeModal();
+                    resolve(value);
+                });
+                
+                newCancelBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeModal();
+                    resolve(options.type === 'prompt' ? null : false);
+                });
+                
+                newCloseBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeModal();
+                    resolve(options.type === 'prompt' ? null : false);
+                });
+                
+                // Close on backdrop click
+                const handleBackdropClick = (e) => {
+                    if (e.target === modal) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        closeModal();
+                        resolve(options.type === 'prompt' ? null : false);
+                        modal.removeEventListener('click', handleBackdropClick);
+                    }
+                };
+                modal.addEventListener('click', handleBackdropClick);
+                
+                // Handle Enter key for prompt
+                if (options.type === 'prompt') {
+                    const handleKeyPress = (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            newConfirmBtn.click();
+                        }
+                    };
+                    currentInput.addEventListener('keypress', handleKeyPress);
+                    
+                    // Focus and select after a short delay to ensure modal is visible
+                    setTimeout(() => {
+                        currentInput.focus();
+                        currentInput.select();
+                    }, 100);
+                }
+                
+                // Show modal
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            });
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('customModal');
+            if (!modal) return;
+            
+            const modalContent = modal.querySelector('.modal-content');
+            const backdrop = modal.querySelector('.modal-backdrop');
+            
+            if (modalContent) modalContent.classList.add('fade-out');
+            if (backdrop) backdrop.classList.add('fade-out');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                if (modalContent) modalContent.classList.remove('fade-out');
+                if (backdrop) backdrop.classList.remove('fade-out');
+            }, 200);
+        }
+        
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const toastClass = type === 'success' ? 'toast-success' : type === 'error' ? 'toast-error' : 'toast-warning';
+            const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+            const iconColor = type === 'success' ? 'text-white' : type === 'error' ? 'text-white' : 'text-white';
+            
+            // Enhanced toast design with gradient and animations
+            toast.className = `success-toast ${toastClass} text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4 min-w-[320px] max-w-[420px] border-2 border-white/20 backdrop-blur-sm relative overflow-hidden`;
+            toast.innerHTML = `
+                <div class="flex items-center gap-4 flex-1">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-white/20 rounded-full blur-md"></div>
+                        <i class="fas ${icon} text-2xl ${iconColor} toast-icon relative z-10"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-sm leading-tight">${message}</p>
+                    </div>
+                </div>
+                <button class="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-1.5 transition-all duration-200 flex-shrink-0" 
+                        onclick="this.closest('.success-toast').classList.add('fade-out'); setTimeout(() => this.closest('.success-toast').remove(), 300)">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+                <div class="absolute bottom-0 left-0 h-1 bg-white/30 rounded-b-xl toast-progress"></div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Add progress bar animation
+            const progressBar = toast.querySelector('.toast-progress');
+            if (progressBar) {
+                progressBar.style.width = '100%';
+                progressBar.style.transition = 'width 4s linear';
+                setTimeout(() => {
+                    progressBar.style.width = '0%';
+                }, 100);
+            }
+            
+            // Auto remove after 4.5 seconds
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 4500);
+        }
+        
+        // ==================== End Custom Modal Functions ====================
+        
         async function processExcelFiles() {
             const processBtn = document.getElementById('processBtn');
             const loadingSpinner = document.getElementById('loadingSpinner');
@@ -831,18 +1226,76 @@
             renameBtn.innerHTML = '<i class="fas fa-edit mr-1"></i>Rename';
             renameBtn.title = `Click to rename ${entry.name}`;
             renameBtn.setAttribute('aria-label', `Rename ${entry.name}`);
-            renameBtn.addEventListener('click', (event) => {
+            renameBtn.addEventListener('click', async (event) => {
                 event.stopPropagation();
-                const newName = prompt(`Rename "${entry.name}" to:`, entry.name);
-                if (!newName || newName.trim() === '' || newName === entry.name) {
-                    return;
+                event.preventDefault();
+                console.log('Rename button clicked for:', entry.name);
+                try {
+                    console.log('Showing rename modal...');
+                    const result = await showCustomModal({
+                        type: 'prompt',
+                        title: 'Rename',
+                        message: `Rename "${entry.name}" to:`,
+                        defaultValue: entry.name,
+                        placeholder: 'Enter new name'
+                    });
+                    console.log('Modal result:', result);
+                    if (!result || result.trim() === '' || result === entry.name) {
+                        console.log('Rename cancelled or invalid');
+                        return;
+                    }
+                    console.log('Calling renameEntry with:', entry.path, result.trim());
+                    await renameEntry(entry.path, result.trim());
+                } catch (error) {
+                    console.error('Error in rename:', error);
+                    if (typeof showToast === 'function') {
+                        showToast('Error: ' + error.message, 'error');
+                    } else {
+                        alert('Error: ' + error.message);
+                    }
                 }
-                renameEntry(entry.path, newName.trim());
+            });
+            
+            // Add delete button for both folders and files
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'opacity-0 group-hover:opacity-100 text-xs px-3 py-1 border border-red-300 rounded-lg text-red-600 hover:bg-red-50 transition';
+            deleteBtn.innerHTML = '<i class="fas fa-trash mr-1"></i>Delete';
+            deleteBtn.title = `Click to delete ${entry.name}`;
+            deleteBtn.setAttribute('aria-label', `Delete ${entry.name}`);
+            deleteBtn.addEventListener('click', async (event) => {
+                event.stopPropagation();
+                event.preventDefault();
+                console.log('Delete button clicked for:', entry.name);
+                try {
+                    const entryType = isDirectory ? 'folder' : 'file';
+                    console.log('Showing delete modal...');
+                    const confirmed = await showCustomModal({
+                        type: 'delete',
+                        title: 'Delete Confirmation',
+                        message: `Are you sure you want to delete this ${entryType} "${entry.name}"? This action cannot be undone.`
+                    });
+                    console.log('Delete confirmation result:', confirmed);
+                    if (confirmed) {
+                        console.log('Calling deleteEntry with:', entry.path, entry.name);
+                        await deleteEntry(entry.path, entry.name);
+                    } else {
+                        console.log('Delete cancelled');
+                    }
+                } catch (error) {
+                    console.error('Error in delete:', error);
+                    if (typeof showToast === 'function') {
+                        showToast('Error: ' + error.message, 'error');
+                    } else {
+                        alert('Error: ' + error.message);
+                    }
+                }
             });
 
             const actions = document.createElement('div');
             actions.className = 'flex items-center gap-2';
             actions.appendChild(renameBtn);
+            actions.appendChild(deleteBtn);
 
             header.appendChild(actions);
 
@@ -914,7 +1367,9 @@
                     </div>
                 `;
 
-                const response = await fetch(`/api/files?path=${encodeURIComponent(path)}`);
+                // Add cache-busting parameter to ensure fresh data
+                const cacheBuster = new Date().getTime();
+                const response = await fetch(`/api/files?path=${encodeURIComponent(path)}&_t=${cacheBuster}`);
                 const result = await response.json();
                 if (!response.ok || !result.success) {
                     throw new Error(result.error || 'Unable to load directory');
@@ -922,6 +1377,13 @@
 
                 fileManagerState.currentPath = result.entry.path || '';
                 fileManagerState.containers.pathLabel.textContent = `/${fileManagerState.currentPath}`;
+                
+                // Update create folder path indicator
+                const createFolderPathElement = document.getElementById('createFolderPath');
+                if (createFolderPathElement) {
+                    createFolderPathElement.textContent = `/${fileManagerState.currentPath || ''}`;
+                }
+                
                 renderDirectoryEntries(result.entry.children || []);
                 renderBreadcrumbs(result.breadcrumbs || []);
                 updateStatus(`Showing contents of /${fileManagerState.currentPath || ''}`, 'info');
@@ -938,18 +1400,84 @@
         }
 
         async function renameEntry(path, newName) {
+            console.log('renameEntry called with path:', path, 'newName:', newName);
             try {
+                console.log('Sending rename request to /api/rename');
                 const response = await fetch('/api/rename', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ path, new_name: newName })
                 });
+                console.log('Rename response status:', response.status);
                 const result = await response.json();
-                if (!response.ok || !result.success) throw new Error(result.error || 'Rename failed');
-                updateStatus(`Renamed to ${newName}`, 'success');
-                loadDirectory(fileManagerState.currentPath);
+                console.log('Rename response result:', result);
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || 'Rename failed');
+                }
+                // Show success toast
+                console.log('Rename successful, showing toast');
+                if (typeof showToast === 'function') {
+                    showToast(`Successfully renamed to "${newName}"`, 'success');
+                } else {
+                    console.error('showToast function not found!');
+                    alert(`Successfully renamed to "${newName}"`);
+                }
+                // Reload directory after a short delay to ensure toast is visible
+                setTimeout(() => {
+                    console.log('Reloading directory:', fileManagerState.currentPath);
+                    loadDirectory(fileManagerState.currentPath);
+                }, 500);
             } catch (error) {
-                updateStatus(error.message, 'error');
+                console.error('Rename error:', error);
+                if (typeof showToast === 'function') {
+                    showToast(error.message || 'Rename failed', 'error');
+                } else {
+                    alert(error.message || 'Rename failed');
+                }
+            }
+        }
+        
+        async function deleteEntry(path, name) {
+            console.log('deleteEntry called with path:', path, 'name:', name);
+            try {
+                console.log('Sending delete request to /api/delete');
+                const response = await fetch('/api/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path })
+                });
+                console.log('Delete response status:', response.status);
+                const result = await response.json();
+                console.log('Delete response result:', result);
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || 'Delete failed');
+                }
+                // Show success toast
+                console.log('Delete successful, showing toast');
+                if (typeof showToast === 'function') {
+                    showToast(`Successfully deleted "${name}"`, 'success');
+                } else {
+                    console.error('showToast function not found!');
+                    alert(`Successfully deleted "${name}"`);
+                }
+                
+                // Check if this is a nested item or a main directory item
+                const pathParts = path.split('/').filter(p => p);
+                const isNestedItem = pathParts.length > 1;
+                
+                // Reload directory after a short delay to ensure toast is visible
+                setTimeout(() => {
+                    console.log('Reloading directory after delete:', fileManagerState.currentPath);
+                    // Always reload the current directory view
+                    loadDirectory(fileManagerState.currentPath);
+                }, 500);
+            } catch (error) {
+                console.error('Delete error:', error);
+                if (typeof showToast === 'function') {
+                    showToast(error.message || 'Delete failed', 'error');
+                } else {
+                    alert(error.message || 'Delete failed');
+                }
             }
         }
 
@@ -980,6 +1508,58 @@
             header.appendChild(icon);
             header.appendChild(label);
 
+            // Add delete button for nested items
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'ml-auto opacity-0 group-hover:opacity-100 text-xs px-3 py-1 border border-red-300 rounded-lg text-red-600 hover:bg-red-50 transition whitespace-nowrap flex-shrink-0';
+            deleteBtn.innerHTML = '<i class="fas fa-trash mr-1"></i>Delete';
+            deleteBtn.title = `Click to delete ${child.name}`;
+            deleteBtn.setAttribute('aria-label', `Delete ${child.name}`);
+            deleteBtn.addEventListener('click', async (event) => {
+                event.stopPropagation();
+                try {
+                    const confirmed = await showCustomModal({
+                        type: 'delete',
+                        title: 'Delete Confirmation',
+                        message: `Are you sure you want to delete "${child.name}"? This action cannot be undone.`
+                    });
+                    if (confirmed) {
+                        await deleteEntry(child.path, child.name);
+                        // Reload the nested view after delete
+                        const parentContainer = row.closest('.border-l');
+                        if (parentContainer) {
+                            const parentRow = parentContainer.parentElement;
+                            if (parentRow) {
+                                const toggleBtn = parentRow.querySelector('.fa-chevron-down, .fa-chevron-up, .fa-chevron-right');
+                                if (toggleBtn && toggleBtn.closest('div')) {
+                                    const nestedContainer = parentRow.querySelector('.border-l');
+                                    if (nestedContainer) {
+                                        // Mark as not loaded to force reload
+                                        nestedContainer.dataset.loaded = 'false';
+                                        // If expanded, collapse and re-expand to reload
+                                        if (!nestedContainer.classList.contains('hidden')) {
+                                            toggleBtn.click(); // Collapse
+                                            setTimeout(() => {
+                                                nestedContainer.dataset.loaded = 'false';
+                                                toggleBtn.click(); // Expand to reload
+                                            }, 300);
+                                        } else {
+                                            // If collapsed, just mark for reload on next expand
+                                            nestedContainer.dataset.loaded = 'false';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error in delete:', error);
+                    if (typeof showToast === 'function') {
+                        showToast('Error: ' + error.message, 'error');
+                    }
+                }
+            });
+
             // Add rename button for nested items (subfolders and subfiles) - Admin can rename any nested folder or file
             // This works recursively for all nested levels (subfolders, sub-subfolders, files, subfiles, etc.)
             const renameBtn = document.createElement('button');
@@ -991,7 +1571,13 @@
             renameBtn.setAttribute('data-rename-target', child.path);
             renameBtn.addEventListener('click', async (event) => {
                 event.stopPropagation();
-                const newName = prompt(`Rename "${child.name}" to:`, child.name);
+                const newName = await showCustomModal({
+                    type: 'prompt',
+                    title: 'Rename',
+                    message: `Rename "${child.name}" to:`,
+                    defaultValue: child.name,
+                    placeholder: 'Enter new name'
+                });
                 if (!newName || newName.trim() === '' || newName === child.name) {
                     return;
                 }
@@ -1002,8 +1588,13 @@
                         body: JSON.stringify({ path: child.path, new_name: newName.trim() })
                     });
                     const result = await response.json();
-                    if (!response.ok || !result.success) throw new Error(result.error || 'Rename failed');
-                    updateStatus(`Renamed to ${newName}`, 'success');
+                    if (!response.ok || !result.success) {
+                        throw new Error(result.error || 'Rename failed');
+                    }
+                    // Show success toast
+                    if (typeof showToast === 'function') {
+                        showToast(`Successfully renamed to "${newName}"`, 'success');
+                    }
                     
                     // Reload the nested view by finding the parent dropdown and refreshing it
                     const parentContainer = row.closest('.border-l');
@@ -1038,9 +1629,14 @@
                         loadDirectory(fileManagerState.currentPath);
                     }
                 } catch (error) {
-                    updateStatus(error.message, 'error');
+                    console.error('Nested rename error:', error);
+                    if (typeof showToast === 'function') {
+                        showToast(error.message || 'Rename failed', 'error');
+                    }
                 }
             });
+            // Add buttons in order: delete first, then rename
+            header.appendChild(deleteBtn);
             header.appendChild(renameBtn);
 
             const nestedContainer = document.createElement('div');
@@ -1116,10 +1712,15 @@
                 if (!response.ok || !result.success) throw new Error(result.error || 'Unable to create folder');
 
                 fileManagerState.containers.folderInput.value = '';
-                updateStatus(`Folder "${folderName}" created successfully.`, 'success');
-                loadDirectory(fileManagerState.currentPath);
+                showToast(`Folder "${folderName}" created successfully.`, 'success');
+                
+                // Reload directory after a short delay to ensure file system updates
+                setTimeout(() => {
+                    console.log('Reloading directory after folder creation:', fileManagerState.currentPath);
+                    loadDirectory(fileManagerState.currentPath);
+                }, 300);
             } catch (error) {
-                updateStatus(error.message, 'error');
+                showToast(error.message, 'error');
             }
         });
 
@@ -1144,10 +1745,10 @@
                 if (!response.ok || !result.success) throw new Error(result.error || 'Upload failed');
 
                 fileManagerState.containers.uploadInput.value = '';
-                updateStatus(result.message || 'Files uploaded successfully.', 'success');
+                showToast(result.message || 'Files uploaded successfully.', 'success');
                 loadDirectory(fileManagerState.currentPath);
             } catch (error) {
-                updateStatus(error.message, 'error');
+                showToast(error.message, 'error');
             }
         });
 
