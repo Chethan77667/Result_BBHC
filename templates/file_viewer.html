@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ file_name or 'File Preview' }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-6xl mx-auto py-8 px-4">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">{{ file_name or 'File Preview' }}</h1>
+                {% if relative_path %}
+                    <p class="text-sm text-gray-500">Path: {{ relative_path }}</p>
+                {% endif %}
+                {% if file_size %}
+                    <p class="text-sm text-gray-500">Size: {{ file_size }}{% if modified_at %} • Updated: {{ modified_at }}{% endif %}</p>
+                {% endif %}
+            </div>
+            <a href="/admin" class="text-primary-600 hover:text-primary-800 font-medium">
+                &larr; Back to Admin
+            </a>
+        </div>
+
+        {% if error %}
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 mb-6">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <div class="bg-white rounded-lg shadow overflow-x-auto">
+            {% if table_html %}
+                {{ table_html|safe }}
+            {% elif not error %}
+                <p class="text-center text-gray-500 py-10">No data to display.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
+

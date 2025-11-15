@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semester Result Analyzer - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen overflow-y-auto">
+    <!-- Navigation Header -->
+    <nav class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-graduation-cap text-primary-600 text-2xl mr-3"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">Semester Result Analyzer</h1>
+                        <p class="text-sm text-gray-500">Academic Performance Analysis System</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/admin" class="text-primary-600 hover:text-primary-700 font-medium">
+                        <i class="fas fa-cog mr-1"></i>
+                        Admin Panel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 pb-8">
+        <!-- Welcome Section -->
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Welcome to Result Analysis</h2>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                Access student results and perform academic analysis. Choose your role to get started.
+            </p>
+        </div>
+
+        <!-- System Status Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-chart-line text-primary-600 mr-2"></i>
+                System Status
+            </h3>
+            
+            {% if processing_status.all_ready %}
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-600 text-2xl mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold text-green-900">System Ready for Analysis</h4>
+                            <p class="text-sm text-green-700">
+                                All {{ processing_status.total_files }} Excel files have been processed and are ready for analysis.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold text-yellow-900">Processing Required</h4>
+                            <p class="text-sm text-yellow-700">
+                                {{ processing_status.files_needing_processing }} of {{ processing_status.total_files }} files need processing.
+                                {{ processing_status.files_ready }} files are already ready.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Role Selection Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Faculty Access -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-user-graduate text-primary-600 text-4xl mb-2"></i>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Faculty Access</h3>
+                        <p class="text-gray-600 mb-4">
+                            Search and analyze student results by USN. View detailed report cards and semester-wise performance.
+                        </p>
+                    </div>
+                    
+                    {% if processing_status.all_ready %}
+                        <a href="/student-analysis" 
+                           class="inline-block bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-primary-200">
+                            <i class="fas fa-search mr-2"></i>
+                            Student Analysis
+                        </a>
+                    {% else %}
+                        <button 
+                            class="bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg shadow-md cursor-not-allowed"
+                            disabled
+                        >
+                            <i class="fas fa-lock mr-2"></i>
+                            Not Available
+                        </button>
+                        <p class="text-sm text-gray-500 mt-2">
+                            All result files must be processed first
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Admin Access -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-cog text-green-600 text-4xl mb-2"></i>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Admin Access</h3>
+                        <p class="text-gray-600 mb-4">
+                            Process Excel files and manage the system. Upload and convert result sheets for analysis.
+                        </p>
+                    </div>
+                    
+                    <a href="/admin" 
+                       class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-200">
+                        <i class="fas fa-tools mr-2"></i>
+                        Admin Panel
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-chart-bar text-primary-600 mr-2"></i>
+                Quick Statistics
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-blue-50 rounded-lg p-4 text-center">
+                    <i class="fas fa-file-excel text-blue-600 text-2xl mb-2"></i>
+                    <p class="text-2xl font-bold text-blue-900">{{ processing_status.total_files }}</p>
+                    <p class="text-sm text-blue-700">Total Files</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4 text-center">
+                    <i class="fas fa-check-circle text-green-600 text-2xl mb-2"></i>
+                    <p class="text-2xl font-bold text-green-900">{{ processing_status.files_ready }}</p>
+                    <p class="text-sm text-green-700">Ready</p>
+                </div>
+                <div class="bg-yellow-50 rounded-lg p-4 text-center">
+                    <i class="fas fa-clock text-yellow-600 text-2xl mb-2"></i>
+                    <p class="text-2xl font-bold text-yellow-900">{{ processing_status.files_needing_processing }}</p>
+                    <p class="text-sm text-yellow-700">Pending</p>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4 text-center">
+                    <i class="fas fa-percentage text-purple-600 text-2xl mb-2"></i>
+                    <p class="text-2xl font-bold text-purple-900">
+                        {% if processing_status.total_files > 0 %}
+                            {{ "%.1f"|format((processing_status.files_ready / processing_status.total_files) * 100) }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </p>
+                    <p class="text-sm text-purple-700">Complete</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scroll to Top Button -->
+    <button 
+        id="scrollToTop" 
+        onclick="scrollToTop()"
+        class="fixed bottom-6 right-6 bg-primary-600 hover:bg-primary-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-primary-200 opacity-0 pointer-events-none"
+    >
+        <i class="fas fa-arrow-up text-lg"></i>
+    </button>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-6">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <div class="text-center text-gray-500 text-sm">
+                <p>&copy; 2024 Semester Result Analyzer. Built with Flask and Tailwind CSS.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Show/hide scroll to top button based on scroll position
+        window.addEventListener('scroll', function() {
+            const scrollToTopBtn = document.getElementById('scrollToTop');
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.style.opacity = '1';
+                scrollToTopBtn.style.pointerEvents = 'auto';
+            } else {
+                scrollToTopBtn.style.opacity = '0';
+                scrollToTopBtn.style.pointerEvents = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Semester Result Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen overflow-y-auto">
+    <!-- Navigation Header -->
+    <nav class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-cog text-primary-600 text-2xl mr-3"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">Admin Panel</h1>
+                        <p class="text-sm text-gray-500">Excel Processing & System Management</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="text-primary-600 hover:text-primary-700 font-medium">
+                        <i class="fas fa-arrow-left mr-1"></i>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 pb-8">
+        <!-- Welcome Section -->
+        <div class="text-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-900 mb-3">Admin Panel</h2>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                Process Excel files and manage the system. This panel is for administrators to prepare result files for analysis.
+            </p>
+        </div>
+
+        <!-- Processing Status Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-chart-line text-primary-600 mr-2"></i>
+                Processing Status
+            </h3>
+            
+            {% if processing_status.all_ready %}
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-600 text-2xl mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold text-green-900">All Files Ready for Analysis</h4>
+                            <p class="text-sm text-green-700">
+                                All {{ processing_status.total_files }} Excel files have been processed and are ready for analysis.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold text-yellow-900">Processing Required</h4>
+                            <p class="text-sm text-yellow-700">
+                                {{ processing_status.files_needing_processing }} of {{ processing_status.total_files }} files need processing.
+                                {{ processing_status.files_ready }} files are already ready.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Files needing processing -->
+                <div class="mt-4">
+                    <h5 class="font-semibold text-gray-900 mb-3">Files Requiring Processing:</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {% for file in processing_status.files_needing_processing_list %}
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                            <div class="flex items-center">
+                                <i class="fas fa-file-excel text-red-500 mr-2"></i>
+                                <div>
+                                    <p class="text-sm font-medium text-red-900">{{ file.course }} - {{ file.semester }}</p>
+                                    <p class="text-xs text-red-700">{{ file.name }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Process Button Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="text-center">
+                <div class="mb-6">
+                    <i class="fas fa-file-excel text-green-500 text-6xl mb-4"></i>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">
+                        {% if processing_status.all_ready %}
+                            All Files Ready
+                        {% else %}
+                            Process Excel Files
+                        {% endif %}
+                    </h3>
+                    <p class="text-gray-600">
+                        {% if processing_status.all_ready %}
+                            All Excel files have been processed and are ready for analysis.
+                        {% else %}
+                            This will process only the {{ processing_status.files_needing_processing }} files that don't have result files yet.
+                        {% endif %}
+                    </p>
+                </div>
+                
+                {% if processing_status.all_ready %}
+                    <button 
+                        class="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-200"
+                        disabled
+                    >
+                        <i class="fas fa-check mr-2"></i>
+                        All Files Ready
+                    </button>
+                {% else %}
+                    <button 
+                        id="processBtn" 
+                        onclick="processExcelFiles()"
+                        class="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-4 px-8 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-primary-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <i class="fas fa-play mr-2"></i>
+                        Process {{ processing_status.files_needing_processing }} Files
+                    </button>
+                {% endif %}
+                
+                <div id="loadingSpinner" class="hidden mt-4">
+                    <div class="inline-flex items-center">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="text-primary-600 font-medium">Processing Excel files...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recalculation and Re-examination Updates Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-calculator text-primary-600 mr-2"></i>
+                Recalculate SGPA/CGPA & Apply Re-examination Updates
+            </h3>
+            <p class="text-gray-600 mb-6">
+                Recalculate SGPA and CGPA for all students, excluding ABSENT subjects. Also apply re-examination updates (including ABSENT status) and recalculate.
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Recalculate SGPA/CGPA Button -->
+                <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                    <h4 class="font-semibold text-gray-900 mb-2">
+                        <i class="fas fa-sync-alt text-blue-600 mr-2"></i>
+                        Recalculate SGPA/CGPA
+                    </h4>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Recalculate SGPA and CGPA for all result files, excluding ABSENT subjects from calculations.
+                    </p>
+                    <button 
+                        id="recalculateBtn" 
+                        onclick="recalculateSGPA()"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <i class="fas fa-calculator mr-2"></i>
+                        Recalculate SGPA/CGPA
+                    </button>
+                    <div id="recalculateSpinner" class="hidden mt-2 text-center">
+                        <div class="inline-flex items-center text-blue-600">
+                            <svg class="animate-spin -ml-1 mr-3 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span class="text-sm">Recalculating...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apply Re-examination Updates and Recalculate Button -->
+                <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                    <h4 class="font-semibold text-gray-900 mb-2">
+                        <i class="fas fa-upload text-purple-600 mr-2"></i>
+                        Update Re-exams & Recalculate
+                    </h4>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Apply re-examination updates (including ABSENT status) for all students, then recalculate SGPA/CGPA.
+                    </p>
+                    <button 
+                        id="updateAndRecalculateBtn" 
+                        onclick="updateReExamsAndRecalculate()"
+                        class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <i class="fas fa-sync-alt mr-2"></i>
+                        Update & Recalculate
+                    </button>
+                    <div id="updateRecalculateSpinner" class="hidden mt-2 text-center">
+                        <div class="inline-flex items-center text-purple-600">
+                            <svg class="animate-spin -ml-1 mr-3 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span class="text-sm">Updating and recalculating...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Year Folders Overview -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-folder-open text-primary-600 mr-2"></i>
+                Available Year Folders
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for year in year_folders %}
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="font-semibold text-gray-900">{{ year }}</h4>
+                            <p class="text-sm text-gray-500">Academic Year</p>
+                        </div>
+                        <i class="fas fa-calendar-alt text-primary-600 text-xl"></i>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- File Manager Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6" id="fileManagerSection">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-1 flex items-center gap-2">
+                        <i class="fas fa-folder-tree text-primary-600"></i>
+                        File Manager
+                    </h3>
+                    <p class="text-sm text-gray-500">
+                        Manage folders and files in <span class="font-medium">C:\Project\Sem Result</span>
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">
+                        Current path: <span id="fmCurrentPath" class="font-semibold text-gray-600">/</span>
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button 
+                        id="fmGoRootBtn"
+                        class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition"
+                    >
+                        <i class="fas fa-home mr-1"></i>
+                        Root
+                    </button>
+                    <button 
+                        id="fmRefreshBtn"
+                        class="px-3 py-2 bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-lg text-sm font-medium transition"
+                    >
+                        <i class="fas fa-sync-alt mr-1"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="fm-breadcrumbs hidden"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 space-y-3" id="fmEntriesContainer">
+                    <div class="text-center text-gray-500 py-10 border border-dashed border-gray-200 rounded-lg">
+                        <i class="fas fa-spinner fa-spin text-primary-600 text-2xl mb-3"></i>
+                        <p>Loading directory contents...</p>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <h4 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <i class="fas fa-folder-plus text-primary-600"></i>
+                            Create Folder
+                        </h4>
+                        <form id="fmCreateFolderForm" class="space-y-3">
+                            <input type="text" id="fmFolderName" placeholder="Folder name"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-200 focus:border-primary-400 text-sm" required>
+                            <button type="submit"
+                                    class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2 rounded-lg shadow transition">
+                                <i class="fas fa-plus mr-2"></i>
+                                Create in Current Folder
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <h4 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <i class="fas fa-upload text-green-600"></i>
+                            Upload Files
+                        </h4>
+                        <form id="fmUploadForm" class="space-y-3">
+                            <input type="file" id="fmUploadInput" multiple
+                                   class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:border file:border-gray-300 file:rounded-lg file:text-sm file:font-semibold file:bg-white file:text-gray-700 hover:file:bg-gray-100">
+                            <button type="submit"
+                                    class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg shadow transition">
+                                <i class="fas fa-cloud-upload-alt mr-2"></i>
+                                Upload to Current Folder
+                            </button>
+                        </form>
+                    </div>
+
+                    <div id="fmStatusPanel" class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-xs text-blue-700">
+                        Use the controls above to manage files. Changes here immediately affect the filesystem.
+                    </div>
+
+                    <div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-semibold text-gray-900 flex items-center gap-2">
+                                <i class="fas fa-eye text-purple-600"></i>
+                                File Preview
+                            </h4>
+                            <button id="fmPreviewOpenTab" class="text-xs text-primary-600 hover:underline hidden">
+                                Open in new tab
+                            </button>
+                        </div>
+                        <div id="fmPreviewPlaceholder" class="text-sm text-gray-500 py-6 text-center">
+                            Select a file to preview its contents.
+                        </div>
+                        <iframe id="fmPreviewFrame" class="w-full h-72 border border-gray-200 rounded-lg hidden" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-chart-bar text-primary-600 mr-2"></i>
+                Processing Results
+            </h3>
+            <div id="resultsContent"></div>
+        </div>
+
+        <!-- System Information -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-info-circle text-primary-600 mr-2"></i>
+                System Information
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-database text-blue-600 text-2xl mr-3"></i>
+                        <div>
+                            <p class="text-sm font-medium text-blue-900">Data Source</p>
+                            <p class="text-xs text-blue-700">Excel Files</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-600 text-2xl mr-3"></i>
+                        <div>
+                            <p class="text-sm font-medium text-green-900">System Status</p>
+                            <p class="text-xs text-green-700">Operational</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                    <div class="flex items-center">
+                        <i class="fas fa-cogs text-purple-600 text-2xl mr-3"></i>
+                        <div>
+                            <p class="text-sm font-medium text-purple-900">Processing</p>
+                            <p class="text-xs text-purple-700">Automated</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flashMessages" class="fixed top-4 right-4 z-50 space-y-2">
+                {% for category, message in messages %}
+                    <div class="flash-message bg-{{ 'green' if category == 'success' else 'red' if category == 'error' else 'yellow' }}-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out">
+                        <div class="flex items-center">
+                            <i class="fas fa-{{ 'check' if category == 'success' else 'exclamation-triangle' if category == 'error' else 'info' }}-circle mr-2"></i>
+                            <span>{{ message }}</span>
+                            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Scroll to Top Button -->
+    <button 
+        id="scrollToTop" 
+        onclick="scrollToTop()"
+        class="fixed bottom-6 right-6 bg-primary-600 hover:bg-primary-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-primary-200 opacity-0 pointer-events-none"
+    >
+        <i class="fas fa-arrow-up text-lg"></i>
+    </button>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-6">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <div class="text-center text-gray-500 text-sm">
+                <p>&copy; 2024 Semester Result Analyzer. Built with Flask and Tailwind CSS.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        async function processExcelFiles() {
+            const processBtn = document.getElementById('processBtn');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            // Disable button and show loading
+            processBtn.disabled = true;
+            processBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+            loadingSpinner.classList.remove('hidden');
+            
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                // Show results
+                resultsSection.classList.remove('hidden');
+                resultsContent.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="bg-${result.success ? 'green' : 'yellow'}-50 border border-${result.success ? 'green' : 'yellow'}-200 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-${result.success ? 'check-circle' : 'exclamation-triangle'} text-${result.success ? 'green' : 'yellow'}-600 text-xl mr-3"></i>
+                                <div>
+                                    <h4 class="font-semibold text-${result.success ? 'green' : 'yellow'}-900">
+                                        ${result.success ? 'Processing Completed Successfully!' : 'Processing Completed with Warnings'}
+                                    </h4>
+                                    <p class="text-sm text-${result.success ? 'green' : 'yellow'}-700">
+                                        ${result.message || `Total files processed: ${result.total_processed}`}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${result.errors && result.errors.length > 0 ? `
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                <h5 class="font-semibold text-red-900 mb-2">Errors:</h5>
+                                <ul class="text-sm text-red-700 space-y-1">
+                                    ${result.errors.map(error => `<li>• ${error}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        
+                        ${result.processed_files && result.processed_files.length > 0 ? `
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h5 class="font-semibold text-blue-900 mb-2">Processed Files:</h5>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-blue-700">
+                                    ${result.processed_files.map(file => `
+                                        <div class="flex items-center">
+                                            <i class="fas fa-file-excel text-green-500 mr-2"></i>
+                                            <span>${file.course} - ${file.semester}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                // Scroll to results with smooth animation
+                resultsSection.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start',
+                    inline: 'nearest'
+                });
+                
+                // If processing was successful, refresh the page after 3 seconds to show updated status
+                if (result.success) {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultsSection.classList.remove('hidden');
+                resultsContent.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-xl mr-3"></i>
+                            <div>
+                                <h4 class="font-semibold text-red-900">Error Processing Files</h4>
+                                <p class="text-sm text-red-700">An error occurred while processing the Excel files.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } finally {
+                // Re-enable button and hide loading
+                processBtn.disabled = false;
+                processBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Process {{ processing_status.files_needing_processing }} Files';
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+        
+        async function recalculateSGPA() {
+            const recalculateBtn = document.getElementById('recalculateBtn');
+            const recalculateSpinner = document.getElementById('recalculateSpinner');
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            // Disable button and show loading
+            recalculateBtn.disabled = true;
+            recalculateSpinner.classList.remove('hidden');
+            
+            try {
+                const response = await fetch('/recalculate-sgpa-cgpa', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                // Show results
+                resultsSection.classList.remove('hidden');
+                resultsContent.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="bg-${result.success ? 'green' : 'yellow'}-50 border border-${result.success ? 'green' : 'yellow'}-200 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-${result.success ? 'check-circle' : 'exclamation-triangle'} text-${result.success ? 'green' : 'yellow'}-600 text-xl mr-3"></i>
+                                <div>
+                                    <h4 class="font-semibold text-${result.success ? 'green' : 'yellow'}-900">
+                                        ${result.success ? 'Recalculation Completed Successfully!' : 'Recalculation Completed with Warnings'}
+                                    </h4>
+                                    <p class="text-sm text-${result.success ? 'green' : 'yellow'}-700">
+                                        ${result.message || `Updated ${result.total_updated} students across ${result.total_files} files`}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${result.errors && result.errors.length > 0 ? `
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                <h5 class="font-semibold text-red-900 mb-2">Errors:</h5>
+                                <ul class="text-sm text-red-700 space-y-1">
+                                    ${result.errors.map(error => `<li>• ${error}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                // Scroll to results
+                resultsSection.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // Refresh page after 3 seconds if successful
+                if (result.success) {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultsSection.classList.remove('hidden');
+                resultsContent.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-xl mr-3"></i>
+                            <div>
+                                <h4 class="font-semibold text-red-900">Error Recalculating</h4>
+                                <p class="text-sm text-red-700">An error occurred while recalculating SGPA/CGPA.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } finally {
+                recalculateBtn.disabled = false;
+                recalculateSpinner.classList.add('hidden');
+            }
+        }
+
+        async function updateReExamsAndRecalculate() {
+            const updateBtn = document.getElementById('updateAndRecalculateBtn');
+            const updateSpinner = document.getElementById('updateRecalculateSpinner');
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            // Disable button and show loading
+            updateBtn.disabled = true;
+            updateSpinner.classList.remove('hidden');
+            
+            // Confirm action
+            if (!confirm('This will apply re-examination updates (including ABSENT status) for all students and recalculate SGPA/CGPA. This may take several minutes. Continue?')) {
+                updateBtn.disabled = false;
+                updateSpinner.classList.add('hidden');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/update-all-re-exam-and-recalculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                // Show results
+                resultsSection.classList.remove('hidden');
+                resultsContent.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="bg-${result.success ? 'green' : 'yellow'}-50 border border-${result.success ? 'green' : 'yellow'}-200 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-${result.success ? 'check-circle' : 'exclamation-triangle'} text-${result.success ? 'green' : 'yellow'}-600 text-xl mr-3"></i>
+                                <div>
+                                    <h4 class="font-semibold text-${result.success ? 'green' : 'yellow'}-900">
+                                        ${result.success ? 'Update & Recalculation Completed!' : 'Completed with Warnings'}
+                                    </h4>
+                                    <p class="text-sm text-${result.success ? 'green' : 'yellow'}-700">
+                                        ${result.message || 'Updates applied and recalculation completed'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${result.re_exam_updates ? `
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h5 class="font-semibold text-blue-900 mb-2">Re-examination Updates:</h5>
+                                <p class="text-sm text-blue-700">
+                                    Applied ${result.re_exam_updates.total_updates_applied} updates for ${result.re_exam_updates.processed_students} students
+                                </p>
+                            </div>
+                        ` : ''}
+                        
+                        ${result.recalculation ? `
+                            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                <h5 class="font-semibold text-purple-900 mb-2">Recalculation Results:</h5>
+                                <p class="text-sm text-purple-700">
+                                    Updated ${result.recalculation.total_updated} students across ${result.recalculation.total_files} files
+                                </p>
+                            </div>
+                        ` : ''}
+                        
+                        ${result.re_exam_updates && result.re_exam_updates.errors && result.re_exam_updates.errors.length > 0 ? `
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                <h5 class="font-semibold text-red-900 mb-2">Re-examination Errors:</h5>
+                                <ul class="text-sm text-red-700 space-y-1">
+                                    ${result.re_exam_updates.errors.map(error => `<li>• ${error}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        
+                        ${result.recalculation && result.recalculation.errors && result.recalculation.errors.length > 0 ? `
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                <h5 class="font-semibold text-red-900 mb-2">Recalculation Errors:</h5>
+                                <ul class="text-sm text-red-700 space-y-1">
+                                    ${result.recalculation.errors.map(error => `<li>• ${error}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                // Scroll to results
+                resultsSection.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // Refresh page after 5 seconds if successful
+                if (result.success) {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 5000);
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultsSection.classList.remove('hidden');
+                resultsContent.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-xl mr-3"></i>
+                            <div>
+                                <h4 class="font-semibold text-red-900">Error Updating</h4>
+                                <p class="text-sm text-red-700">An error occurred while updating re-examination results and recalculating.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } finally {
+                updateBtn.disabled = false;
+                updateSpinner.classList.add('hidden');
+            }
+        }
+
+        // -----------------------------
+        // File Manager Logic
+        // -----------------------------
+        const fileManagerState = {
+            currentPath: '',
+            containers: {
+                pathLabel: document.getElementById('fmCurrentPath'),
+                entries: document.getElementById('fmEntriesContainer'),
+                status: document.getElementById('fmStatusPanel'),
+                folderInput: document.getElementById('fmFolderName'),
+                uploadInput: document.getElementById('fmUploadInput'),
+                previewFrame: document.getElementById('fmPreviewFrame'),
+                previewPlaceholder: document.getElementById('fmPreviewPlaceholder'),
+                previewOpenTabBtn: document.getElementById('fmPreviewOpenTab')
+            }
+        };
+
+        function updateStatus(message, status = 'info') {
+            const panel = fileManagerState.containers.status;
+            const baseClasses = 'rounded-lg p-4 text-xs font-medium';
+            if (status === 'error') {
+                panel.className = `${baseClasses} bg-red-50 border border-red-200 text-red-700`;
+            } else if (status === 'success') {
+                panel.className = `${baseClasses} bg-green-50 border border-green-200 text-green-700`;
+            } else {
+                panel.className = `${baseClasses} bg-blue-50 border border-blue-100 text-blue-700`;
+            }
+            panel.textContent = message;
+        }
+
+        function renderBreadcrumbs(breadcrumbs) {
+            const breadcrumbContainer = document.createElement('div');
+            breadcrumbContainer.className = 'fm-breadcrumbs flex flex-wrap items-center gap-2 text-xs text-gray-500 mb-4';
+
+            breadcrumbs.forEach((crumb, idx) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'text-primary-600 hover:underline';
+                button.textContent = crumb.name || '/';
+                button.addEventListener('click', () => loadDirectory(crumb.path || ''));
+                breadcrumbContainer.appendChild(button);
+
+                if (idx < breadcrumbs.length - 1) {
+                    const divider = document.createElement('span');
+                    divider.textContent = '/';
+                    breadcrumbContainer.appendChild(divider);
+                }
+            });
+
+            const section = document.getElementById('fileManagerSection');
+            const existing = section.querySelector('.fm-breadcrumbs');
+            if (existing) existing.remove();
+            section.insertBefore(breadcrumbContainer, section.querySelector('.grid'));
+        }
+
+        function buildEntryCard(entry) {
+            // This function creates cards for folders and files when you navigate INTO a folder
+            // (e.g., when you click on 2022 and see BCA, BBA folders inside it)
+            // Rename functionality works exactly the same as main folders (2022, 2023, 2024, Re-Exam)
+            const isDirectory = entry.type === 'directory';
+            const card = document.createElement('div');
+            card.className = 'group border border-gray-200 rounded-lg p-4 hover:border-primary-200 hover:bg-primary-50 transition';
+
+            const header = document.createElement('div');
+            header.className = 'flex items-center justify-between gap-3';
+
+            const info = document.createElement('div');
+            info.className = 'flex items-center gap-3 flex-1 cursor-pointer';
+            info.addEventListener('click', () => {
+                if (isDirectory) {
+                    loadDirectory(entry.path);
+                } else if (entry.type === 'file') {
+                    openFile(entry.path);
+                }
+            });
+
+            info.innerHTML = `
+                <div class="w-10 h-10 flex items-center justify-center rounded-full ${isDirectory ? 'bg-yellow-100 text-yellow-600' : 'bg-blue-100 text-blue-600'}">
+                    <i class="fas ${isDirectory ? 'fa-folder' : 'fa-file'}"></i>
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-900 text-sm">${entry.name || '(root)'}</p>
+                    <p class="text-xs text-gray-500 break-all">${entry.path || '/'}</p>
+                </div>
+            `;
+
+            header.appendChild(info);
+
+            // Add rename button for both folders and files inside main folders
+            // Works the same way as rename for main folders (2022, 2023, 2024, Re-Exam)
+            // Admin can rename any folder (BCA, BBA, BCom, etc.) or file inside them
+            const renameBtn = document.createElement('button');
+            renameBtn.type = 'button';
+            renameBtn.className = 'opacity-0 group-hover:opacity-100 text-xs px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-white transition';
+            renameBtn.innerHTML = '<i class="fas fa-edit mr-1"></i>Rename';
+            renameBtn.title = `Click to rename ${entry.name}`;
+            renameBtn.setAttribute('aria-label', `Rename ${entry.name}`);
+            renameBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const newName = prompt(`Rename "${entry.name}" to:`, entry.name);
+                if (!newName || newName.trim() === '' || newName === entry.name) {
+                    return;
+                }
+                renameEntry(entry.path, newName.trim());
+            });
+
+            const actions = document.createElement('div');
+            actions.className = 'flex items-center gap-2';
+            actions.appendChild(renameBtn);
+
+            header.appendChild(actions);
+
+            card.appendChild(header);
+
+            if (isDirectory && (entry.has_files || entry.has_subdirectories)) {
+                const toggleBtn = document.createElement('button');
+                toggleBtn.type = 'button';
+                toggleBtn.className = 'mt-3 text-xs text-primary-600 flex items-center gap-1 hover:underline';
+                toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Show Contents';
+
+                const dropdown = document.createElement('div');
+                dropdown.className = 'mt-3 bg-white rounded-lg border border-dashed border-gray-200 hidden text-xs';
+
+                toggleBtn.addEventListener('click', async (event) => {
+                    event.stopPropagation();
+                    if (!dropdown.dataset.loaded) {
+                        dropdown.innerHTML = `
+                            <div class="text-center text-gray-500 py-3">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>Loading...
+                            </div>
+                        `;
+                        const response = await fetch(`/api/files?path=${encodeURIComponent(entry.path)}`);
+                        const result = await response.json();
+                        if (result.success && result.entry.children) {
+                            dropdown.innerHTML = '';
+                            result.entry.children.forEach(child => dropdown.appendChild(createNestedRow(child)));
+                        } else {
+                            dropdown.innerHTML = `<div class="text-center text-red-500 py-2">${result.error || 'Unable to load contents'}</div>`;
+                        }
+                        dropdown.dataset.loaded = 'true';
+                    }
+                    dropdown.classList.toggle('hidden');
+                    toggleBtn.innerHTML = dropdown.classList.contains('hidden')
+                        ? '<i class="fas fa-chevron-down"></i> Show Contents'
+                        : '<i class="fas fa-chevron-up"></i> Hide Contents';
+                });
+
+                card.appendChild(toggleBtn);
+                card.appendChild(dropdown);
+            }
+
+            return card;
+        }
+
+        function renderDirectoryEntries(entries) {
+            if (!entries.length) {
+                fileManagerState.containers.entries.innerHTML = `
+                    <div class="text-center text-gray-500 py-12 border border-dashed border-gray-200 rounded-lg">
+                        <i class="fas fa-folder-open text-3xl mb-3 text-gray-400"></i>
+                        <p>No files or folders found.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            entries.forEach(entry => fragment.appendChild(buildEntryCard(entry)));
+            fileManagerState.containers.entries.innerHTML = '';
+            fileManagerState.containers.entries.appendChild(fragment);
+        }
+
+        async function loadDirectory(path = '') {
+            try {
+                fileManagerState.containers.entries.innerHTML = `
+                    <div class="text-center text-gray-500 py-8 border border-dashed border-gray-200 rounded-lg">
+                        <i class="fas fa-spinner fa-spin text-primary-600 text-2xl mb-3"></i>
+                        <p>Loading directory contents...</p>
+                    </div>
+                `;
+
+                const response = await fetch(`/api/files?path=${encodeURIComponent(path)}`);
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || 'Unable to load directory');
+                }
+
+                fileManagerState.currentPath = result.entry.path || '';
+                fileManagerState.containers.pathLabel.textContent = `/${fileManagerState.currentPath}`;
+                renderDirectoryEntries(result.entry.children || []);
+                renderBreadcrumbs(result.breadcrumbs || []);
+                updateStatus(`Showing contents of /${fileManagerState.currentPath || ''}`, 'info');
+            } catch (error) {
+                console.error(error);
+                fileManagerState.containers.entries.innerHTML = `
+                    <div class="text-center text-red-600 py-8 border border-dashed border-red-200 rounded-lg">
+                        <i class="fas fa-exclamation-triangle text-2xl mb-3"></i>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+                updateStatus(error.message, 'error');
+            }
+        }
+
+        async function renameEntry(path, newName) {
+            try {
+                const response = await fetch('/api/rename', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path, new_name: newName })
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) throw new Error(result.error || 'Rename failed');
+                updateStatus(`Renamed to ${newName}`, 'success');
+                loadDirectory(fileManagerState.currentPath);
+            } catch (error) {
+                updateStatus(error.message, 'error');
+            }
+        }
+
+        function createNestedRow(child) {
+            const row = document.createElement('div');
+            row.className = 'px-3 py-2 border-b border-gray-100 last:border-b-0 group hover:bg-gray-50 transition';
+
+            const header = document.createElement('div');
+            header.className = 'flex items-center gap-2 text-xs cursor-pointer hover:text-primary-600 w-full';
+
+            const caret = document.createElement('i');
+            caret.className = 'fas fa-chevron-right text-gray-400 text-[10px] flex-shrink-0';
+
+            const icon = document.createElement('i');
+            icon.className = `fas ${child.type === 'directory' ? 'fa-folder text-yellow-500' : 'fa-file text-blue-500'} flex-shrink-0`;
+
+            const label = document.createElement('span');
+            label.className = 'flex-1 min-w-0 truncate';
+            label.textContent = child.name;
+
+            if (child.type === 'directory') {
+                header.prepend(caret);
+            } else {
+                caret.classList.add('opacity-0');
+                header.prepend(caret);
+            }
+
+            header.appendChild(icon);
+            header.appendChild(label);
+
+            // Add rename button for nested items (subfolders and subfiles) - Admin can rename any nested folder or file
+            // This works recursively for all nested levels (subfolders, sub-subfolders, files, subfiles, etc.)
+            const renameBtn = document.createElement('button');
+            renameBtn.type = 'button';
+            renameBtn.className = 'ml-auto opacity-0 group-hover:opacity-100 text-xs px-3 py-1 border border-gray-300 rounded-lg text-gray-600 hover:bg-white transition whitespace-nowrap flex-shrink-0';
+            renameBtn.innerHTML = '<i class="fas fa-edit mr-1"></i>Rename';
+            renameBtn.title = `Click to rename ${child.name}`;
+            renameBtn.setAttribute('aria-label', `Rename ${child.name}`);
+            renameBtn.setAttribute('data-rename-target', child.path);
+            renameBtn.addEventListener('click', async (event) => {
+                event.stopPropagation();
+                const newName = prompt(`Rename "${child.name}" to:`, child.name);
+                if (!newName || newName.trim() === '' || newName === child.name) {
+                    return;
+                }
+                try {
+                    const response = await fetch('/api/rename', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ path: child.path, new_name: newName.trim() })
+                    });
+                    const result = await response.json();
+                    if (!response.ok || !result.success) throw new Error(result.error || 'Rename failed');
+                    updateStatus(`Renamed to ${newName}`, 'success');
+                    
+                    // Reload the nested view by finding the parent dropdown and refreshing it
+                    const parentContainer = row.closest('.border-l');
+                    if (parentContainer) {
+                        const parentRow = parentContainer.parentElement;
+                        if (parentRow) {
+                            // Find the toggle button to collapse and expand
+                            const toggleBtn = parentRow.querySelector('.fa-chevron-down, .fa-chevron-right');
+                            if (toggleBtn && toggleBtn.closest('div')) {
+                                const parentHeader = toggleBtn.closest('div');
+                                // Get the parent path from the child path
+                                const parentPath = child.path.split('/').slice(0, -1).join('/');
+                                
+                                // Collapse first
+                                const nestedContainer = parentRow.querySelector('.border-l');
+                                if (nestedContainer && !nestedContainer.classList.contains('hidden')) {
+                                    toggleBtn.click(); // Collapse
+                                    setTimeout(() => {
+                                        // Reload the nested content
+                                        nestedContainer.dataset.loaded = 'false';
+                                        toggleBtn.click(); // Expand (will reload)
+                                    }, 150);
+                                } else {
+                                    // If already collapsed, just expand to reload
+                                    nestedContainer.dataset.loaded = 'false';
+                                    toggleBtn.click();
+                                }
+                            }
+                        }
+                    } else {
+                        // If not in nested view, reload the main directory
+                        loadDirectory(fileManagerState.currentPath);
+                    }
+                } catch (error) {
+                    updateStatus(error.message, 'error');
+                }
+            });
+            header.appendChild(renameBtn);
+
+            const nestedContainer = document.createElement('div');
+            nestedContainer.className = 'ml-5 mt-2 border-l border-dashed border-gray-200 hidden';
+
+            if (child.type === 'directory') {
+                header.addEventListener('click', async (event) => {
+                    if (event.target === renameBtn) return;
+                    event.stopPropagation();
+                    if (!nestedContainer.dataset.loaded) {
+                        nestedContainer.innerHTML = `
+                            <div class="text-gray-500 text-[11px] italic px-3 py-2">Loading...</div>
+                        `;
+                        try {
+                            const response = await fetch(`/api/files?path=${encodeURIComponent(child.path)}`);
+                            const result = await response.json();
+                            if (result.success && result.entry.children) {
+                                nestedContainer.innerHTML = '';
+                                result.entry.children.forEach(subChild => nestedContainer.appendChild(createNestedRow(subChild)));
+                            } else {
+                                nestedContainer.innerHTML = `<div class="text-red-500 text-[11px] italic px-3 py-2">${result.error || 'Unable to load contents'}</div>`;
+                            }
+                        } catch (error) {
+                            nestedContainer.innerHTML = `<div class="text-red-500 text-[11px] italic px-3 py-2">${error.message}</div>`;
+                        }
+                        nestedContainer.dataset.loaded = 'true';
+                    }
+                    nestedContainer.classList.toggle('hidden');
+                    caret.className = nestedContainer.classList.contains('hidden')
+                        ? 'fas fa-chevron-right text-gray-400 text-[10px]'
+                        : 'fas fa-chevron-down text-gray-400 text-[10px]';
+                });
+            } else {
+                header.addEventListener('click', (event) => {
+                    if (event.target === renameBtn) return;
+                    event.stopPropagation();
+                    openFile(child.path);
+                });
+            }
+
+            row.appendChild(header);
+            row.appendChild(nestedContainer);
+            return row;
+        }
+
+        function openFile(path) {
+            // Open file directly in new tab - browser will handle based on MIME type
+            const url = `/files/open?path=${encodeURIComponent(path)}`;
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        document.getElementById('fmPreviewOpenTab').addEventListener('click', () => {
+            if (!fileManagerState.selectedFilePath) return;
+            const url = `/file-viewer?path=${encodeURIComponent(fileManagerState.selectedFilePath)}`;
+            window.open(url, '_blank', 'noopener');
+        });
+
+        document.getElementById('fmCreateFolderForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const folderName = fileManagerState.containers.folderInput.value.trim();
+            if (!folderName) return;
+
+            try {
+                const response = await fetch('/api/folders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        parent_path: fileManagerState.currentPath,
+                        folder_name: folderName
+                    })
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) throw new Error(result.error || 'Unable to create folder');
+
+                fileManagerState.containers.folderInput.value = '';
+                updateStatus(`Folder "${folderName}" created successfully.`, 'success');
+                loadDirectory(fileManagerState.currentPath);
+            } catch (error) {
+                updateStatus(error.message, 'error');
+            }
+        });
+
+        document.getElementById('fmUploadForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const files = fileManagerState.containers.uploadInput.files;
+            if (!files.length) {
+                updateStatus('Please select file(s) to upload.', 'error');
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                Array.from(files).forEach(file => formData.append('files', file));
+                formData.append('path', fileManagerState.currentPath);
+
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) throw new Error(result.error || 'Upload failed');
+
+                fileManagerState.containers.uploadInput.value = '';
+                updateStatus(result.message || 'Files uploaded successfully.', 'success');
+                loadDirectory(fileManagerState.currentPath);
+            } catch (error) {
+                updateStatus(error.message, 'error');
+            }
+        });
+
+        document.getElementById('fmRefreshBtn').addEventListener('click', () => loadDirectory(fileManagerState.currentPath));
+        document.getElementById('fmGoRootBtn').addEventListener('click', () => loadDirectory(''));
+
+        loadDirectory('');
+        
+        // Auto-hide flash messages after 5 seconds
+        setTimeout(() => {
+            const flashMessages = document.getElementById('flashMessages');
+            if (flashMessages) {
+                flashMessages.style.opacity = '0';
+                setTimeout(() => flashMessages.remove(), 300);
+            }
+        }, 5000);
+        
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Show/hide scroll to top button based on scroll position
+        window.addEventListener('scroll', function() {
+            const scrollToTopBtn = document.getElementById('scrollToTop');
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.style.opacity = '1';
+                scrollToTopBtn.style.pointerEvents = 'auto';
+            } else {
+                scrollToTopBtn.style.opacity = '0';
+                scrollToTopBtn.style.pointerEvents = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
+
+
